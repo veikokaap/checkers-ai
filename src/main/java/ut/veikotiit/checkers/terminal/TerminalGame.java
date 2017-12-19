@@ -30,21 +30,21 @@ public class TerminalGame {
     MtdF mtdF = new MtdF();
     while (true) {
       print();
-      Move blackMove = mtdF.search(bitBoard, Color.BLACK, 13);
+      Move blackMove = mtdF.search(bitBoard, Color.BLACK, 8);
       if (blackMove == null) {
         System.out.println("No legal moves for black");
         break;
       }
       bitBoard = bitBoard.move(blackMove);
-      Thread.sleep(20);
+      Thread.sleep(1000);
       print();
-      Move whiteMove = mtdF.search(bitBoard, Color.WHITE, 13);
+      Move whiteMove = mtdF.search(bitBoard, Color.WHITE, 8);
       if (whiteMove == null) {
         System.out.println("No legal moves for white");
         break;
       }
       bitBoard = bitBoard.move(whiteMove);
-      Thread.sleep(200);
+      Thread.sleep(1000);
     }
   }
 
@@ -52,7 +52,9 @@ public class TerminalGame {
     List<Integer> blacks = Arrays.stream(BitUtil.longToBits(bitBoard.getBlacks())).boxed().collect(Collectors.toList());
     List<Integer> whites = Arrays.stream(BitUtil.longToBits(bitBoard.getWhites())).boxed().collect(Collectors.toList());
 
+    System.out.println("+------------------------------+");
     for (int i = 0; i < 10; i++) {
+      System.out.print("|");
       for (int j = 0; j < 10; j++) {
         if ((i + j) % 2 == 1) {
           int index = (5 * i) + (j / 2);
@@ -63,15 +65,16 @@ public class TerminalGame {
             System.out.print(" W ");
           }
           else {
-            System.out.print(" x ");
+            System.out.print(" · ");
           }
         }
         else {
           System.out.print("   ");
         }
       }
-      System.out.println();
+      System.out.println("|");
     }
+    System.out.println("+------------------------------+");
     System.out.println();
     System.out.println();
   }
