@@ -7,6 +7,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import ut.veikotiit.checkers.Color;
+import ut.veikotiit.checkers.moves.JumpMove;
+import ut.veikotiit.checkers.moves.JumpMoveGenerator;
 import ut.veikotiit.checkers.moves.Move;
 import ut.veikotiit.checkers.moves.MoveVisitor;
 import ut.veikotiit.checkers.moves.SimpleMove;
@@ -87,9 +89,19 @@ public class BitBoard {
   }
 
   public List<BitBoard> getChildBoards(Color color) {
-    return Arrays.stream(SimpleMoveGenerator.generate(this, color))
-        .map(this::move)
-        .collect(Collectors.toList());
+    JumpMove[] jumps = JumpMoveGenerator.generate(this, color);
+
+    // Mandatory taking
+    if (jumps.length > 0) {
+      return Arrays.stream(jumps)
+          .map(this::move)
+          .collect(Collectors.toList());
+    }
+    else {
+      return Arrays.stream(SimpleMoveGenerator.generate(this, color))
+          .map(this::move)
+          .collect(Collectors.toList());
+    }
   }
 
   private static class BitBoardMover implements MoveVisitor<BitBoard> {
@@ -106,6 +118,27 @@ public class BitBoard {
       pieces = removePieceAt(pieces, move.getOrigin());
       pieces = addPieceAt(pieces, move.getDestination());
       return pieces;
+    }
+
+    @Override
+    public BitBoard visit(BitBoard board, JumpMove move) {
+      if (move.getColor() == Color.WHITE) {
+        long whites = removePieceAt(board.getWhites(), move.getOrigin());
+        whites = addPieceAt(whites, move.getDestination());
+        long blacks = board.getBlacks();
+        for (int i : move.getPiecesTaken()) {
+          blacks = removePieceAt(blacks, i);
+        }
+        return new BitBoard(blacks, whites, move);
+      } else {
+        long blacks = removePieceAt(board.getBlacks(), move.getOrigin());
+        blacks = addPieceAt(blacks, move.getDestination());
+        long whites = board.getWhites();
+        for (int i : move.getPiecesTaken()) {
+          whites = removePieceAt(whites, i);
+        }
+        return new BitBoard(blacks, whites, move);
+      }
     }
 
     private long removePieceAt(long pieces, int location) {
