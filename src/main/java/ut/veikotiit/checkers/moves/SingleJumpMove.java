@@ -1,21 +1,20 @@
 package ut.veikotiit.checkers.moves;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 import ut.veikotiit.checkers.Color;
 
-public class JumpMove implements Move {
+public class SingleJumpMove implements Move {
   private final int origin;
   private final int destination;
   private final Color color;
-  private final int[] piecesTaken;
+  private final int pieceTaken;
 
-  public JumpMove(int origin, int destination, Color color, int[] piecesTaken) {
+  public SingleJumpMove(int origin, int destination, Color color, int pieceTaken) {
     this.origin = origin;
     this.destination = destination;
     this.color = color;
-    this.piecesTaken = piecesTaken;
+    this.pieceTaken = pieceTaken;
   }
 
   @Override
@@ -35,8 +34,8 @@ public class JumpMove implements Move {
     return color;
   }
 
-  public int[] getPiecesTaken() {
-    return piecesTaken;
+  public int getPieceTaken() {
+    return pieceTaken;
   }
 
   @Override
@@ -44,30 +43,29 @@ public class JumpMove implements Move {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof JumpMove)) {
+    if (!(o instanceof SingleJumpMove)) {
       return false;
     }
-    JumpMove jumpMove = (JumpMove) o;
-    return getOrigin() == jumpMove.getOrigin() &&
-        getDestination() == jumpMove.getDestination() &&
-        getColor() == jumpMove.getColor() &&
-        Arrays.equals(getPiecesTaken(), jumpMove.getPiecesTaken());
+    SingleJumpMove singleJumpMove = (SingleJumpMove) o;
+    return getOrigin() == singleJumpMove.getOrigin() &&
+        getDestination() == singleJumpMove.getDestination() &&
+        getPieceTaken() == singleJumpMove.getPieceTaken() &&
+        getColor() == singleJumpMove.getColor();
   }
 
   @Override
   public int hashCode() {
-    int result = Objects.hash(getOrigin(), getDestination(), getColor());
-    result = 31 * result + Arrays.hashCode(getPiecesTaken());
-    return result;
+
+    return Objects.hash(getOrigin(), getDestination(), getColor(), getPieceTaken());
   }
 
   @Override
   public String toString() {
-    return "JumpMove{" +
+    return "SingleJumpMove{" +
         "origin=" + origin +
         ", destination=" + destination +
         ", color=" + color +
-        ", piecesTaken=" + Arrays.toString(piecesTaken) +
+        ", pieceTaken=" + pieceTaken +
         '}';
   }
 }

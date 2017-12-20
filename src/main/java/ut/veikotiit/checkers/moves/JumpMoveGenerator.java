@@ -8,85 +8,91 @@ import ut.veikotiit.checkers.bitboard.BitBoard;
 import ut.veikotiit.checkers.bitboard.BitUtil;
 
 public class JumpMoveGenerator {
-  public static JumpMove[] generate(BitBoard board, Color color) {
+  public static SingleJumpMove[] generate(BitBoard board, Color color) {
+    long myPieces, opponentPieces;
     if (color == Color.WHITE) {
-      return getWhiteSingleJumps(board);
-    } else {
-      return getBlackSingleJumps(board);
+      myPieces = board.getWhites();
+      opponentPieces = board.getBlacks();
     }
+    else {
+      myPieces = board.getBlacks();
+      opponentPieces = board.getWhites();
+    }
+    SingleJumpMove[] forwardJumps = getForwardSingleJumps(color, myPieces, opponentPieces);
+    SingleJumpMove[] backwardJumps = getBackwardSingleJumps(color, myPieces, opponentPieces);
+
+    SingleJumpMove[] jumps = new SingleJumpMove[forwardJumps.length + backwardJumps.length];
+    System.arraycopy(forwardJumps, 0, jumps, 0, forwardJumps.length);
+    System.arraycopy(backwardJumps, 0, jumps, forwardJumps.length, backwardJumps.length);
+
+    return jumps;
   }
 
-  private static JumpMove[] getBlackSingleJumps(BitBoard board) {
-    List<JumpMove> moves = new ArrayList<>();
+  private static SingleJumpMove[] getForwardSingleJumps(Color color, long myPieces, long opponentPieces) {
+    List<SingleJumpMove> moves = new ArrayList<>();
 
-    long whites = board.getWhites();
-    long blacks = board.getBlacks();
+    long unoccupied = BitUtil.ALL_BITS ^ (myPieces | opponentPieces);
 
-    long unoccupied = BitUtil.ALL_BITS ^ (whites | blacks);
-
-    long temp = (unoccupied >> 5) & whites;
+    long temp = (unoccupied >> 5) & opponentPieces;
 
     if (temp != 0) {
-      long nineMovers = ((temp & BitUtil.MASK_R4) >> 4) & blacks;
-      long elevenMovers = ((temp & BitUtil.MASK_R6) >> 6) & blacks;
+      long nineMovers = ((temp & BitUtil.MASK_R4) >> 4) & myPieces;
+      long elevenMovers = ((temp & BitUtil.MASK_R6) >> 6) & myPieces;
 
       for (int i : BitUtil.longToBits(nineMovers)) {
-        moves.add(new JumpMove(i, i + 9, Color.BLACK, new int[]{i + 4}));
+        moves.add(new SingleJumpMove(i, i + 9, color, i + 4));
       }
       for (int i : BitUtil.longToBits(elevenMovers)) {
-        moves.add(new JumpMove(i, i + 11, Color.BLACK, new int[]{i + 6}));
+        moves.add(new SingleJumpMove(i, i + 11, color, i + 6));
       }
     }
-    long tempNine = ((unoccupied & BitUtil.MASK_R4) >> 4) & whites;
-    long tempEleven = ((unoccupied & BitUtil.MASK_R6) >> 6) & whites;
+    long tempNine = ((unoccupied & BitUtil.MASK_R4) >> 4) & opponentPieces;
+    long tempEleven = ((unoccupied & BitUtil.MASK_R6) >> 6) & opponentPieces;
 
-    long nineMovers = (tempNine >> 5) & blacks;
-    long elevenMovers = (tempEleven >> 5) & blacks;
+    long nineMovers = (tempNine >> 5) & myPieces;
+    long elevenMovers = (tempEleven >> 5) & myPieces;
 
     for (int i : BitUtil.longToBits(nineMovers)) {
-      moves.add(new JumpMove(i, i + 9, Color.BLACK, new int[]{i + 5}));
+      moves.add(new SingleJumpMove(i, i + 9, color, i + 5));
     }
     for (int i : BitUtil.longToBits(elevenMovers)) {
-      moves.add(new JumpMove(i, i + 11, Color.BLACK, new int[]{i + 5}));
+      moves.add(new SingleJumpMove(i, i + 11, color, i + 5));
     }
 
-    return moves.toArray(new JumpMove[0]);
+    return moves.toArray(new SingleJumpMove[0]);
   }
 
-  private static JumpMove[] getWhiteSingleJumps(BitBoard board) {
-    List<JumpMove> moves = new ArrayList<>();
+  private static SingleJumpMove[] getBackwardSingleJumps(Color color, long myPieces, long opponentPieces) {
+    List<SingleJumpMove> moves = new ArrayList<>();
 
-    long whites = board.getWhites();
-    long blacks = board.getBlacks();
+    long unoccupied = BitUtil.ALL_BITS ^ (myPieces | opponentPieces);
 
-    long unoccupied = BitUtil.ALL_BITS ^ (whites | blacks);
-
-    long temp = (unoccupied << 5) & blacks;
+    long temp = (unoccupied << 5) & opponentPieces;
 
     if (temp != 0) {
-      long nineMovers = ((temp & BitUtil.MASK_L4) << 4) & whites;
-      long elevenMovers = ((temp & BitUtil.MASK_L6) << 6) & whites;
+      long nineMovers = ((temp & BitUtil.MASK_L4) << 4) & myPieces;
+      long elevenMovers = ((temp & BitUtil.MASK_L6) << 6) & myPieces;
 
       for (int i : BitUtil.longToBits(nineMovers)) {
-        moves.add(new JumpMove(i, i - 9, Color.WHITE, new int[]{i - 4}));
+        moves.add(new SingleJumpMove(i, i - 9, color, i - 4));
       }
       for (int i : BitUtil.longToBits(elevenMovers)) {
-        moves.add(new JumpMove(i, i - 11, Color.WHITE, new int[]{i - 6}));
+        moves.add(new SingleJumpMove(i, i - 11, color, i - 6));
       }
     }
-    long tempNine = ((unoccupied & BitUtil.MASK_L4) << 4) & blacks;
-    long tempEleven = ((unoccupied & BitUtil.MASK_L6) << 6) & blacks;
+    long tempNine = ((unoccupied & BitUtil.MASK_L4) << 4) & opponentPieces;
+    long tempEleven = ((unoccupied & BitUtil.MASK_L6) << 6) & opponentPieces;
 
-    long nineMovers = (tempNine << 5) & whites;
-    long elevenMovers = (tempEleven << 5) & whites;
+    long nineMovers = (tempNine << 5) & myPieces;
+    long elevenMovers = (tempEleven << 5) & myPieces;
 
     for (int i : BitUtil.longToBits(nineMovers)) {
-      moves.add(new JumpMove(i, i - 9, Color.WHITE, new int[]{i - 5}));
+      moves.add(new SingleJumpMove(i, i - 9, color, i - 5));
     }
     for (int i : BitUtil.longToBits(elevenMovers)) {
-      moves.add(new JumpMove(i, i - 11, Color.WHITE, new int[]{i - 5}));
+      moves.add(new SingleJumpMove(i, i - 11, color, i - 5));
     }
 
-    return moves.toArray(new JumpMove[0]);
+    return moves.toArray(new SingleJumpMove[0]);
   }
 }

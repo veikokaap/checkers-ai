@@ -1,13 +1,12 @@
 package ut.veikotiit.checkers.bitboard;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import ut.veikotiit.checkers.Color;
-import ut.veikotiit.checkers.moves.JumpMove;
+import ut.veikotiit.checkers.moves.SingleJumpMove;
 import ut.veikotiit.checkers.moves.JumpMoveGenerator;
 import ut.veikotiit.checkers.moves.Move;
 import ut.veikotiit.checkers.moves.MoveVisitor;
@@ -15,9 +14,9 @@ import ut.veikotiit.checkers.moves.SimpleMove;
 import ut.veikotiit.checkers.moves.SimpleMoveGenerator;
 
 public class BitBoard {
-  
+
   private static final BitBoardMover bitBoardMover = new BitBoardMover();
-  
+
   private final long blacks;
   private final long whites;
   private final Move move;
@@ -47,7 +46,7 @@ public class BitBoard {
   public long getPlayerBitboard(Color color) {
     return color == Color.WHITE ? whites : blacks;
   }
-  
+
   public BitBoard move(Move move) {
     return move.visit(this, bitBoardMover);
   }
@@ -89,7 +88,7 @@ public class BitBoard {
   }
 
   public List<BitBoard> getChildBoards(Color color) {
-    JumpMove[] jumps = JumpMoveGenerator.generate(this, color);
+    SingleJumpMove[] jumps = JumpMoveGenerator.generate(this, color);
 
     // Mandatory taking
     if (jumps.length > 0) {
@@ -109,7 +108,8 @@ public class BitBoard {
     public BitBoard visit(BitBoard bitBoard, SimpleMove move) {
       if (move.getColor() == Color.WHITE) {
         return new BitBoard(bitBoard.getBlacks(), simpleMove(bitBoard.getWhites(), move), move);
-      } else {
+      }
+      else {
         return new BitBoard(simpleMove(bitBoard.getBlacks(), move), bitBoard.getWhites(), move);
       }
     }
@@ -121,22 +121,19 @@ public class BitBoard {
     }
 
     @Override
-    public BitBoard visit(BitBoard board, JumpMove move) {
+    public BitBoard visit(BitBoard board, SingleJumpMove move) {
       if (move.getColor() == Color.WHITE) {
         long whites = removePieceAt(board.getWhites(), move.getOrigin());
         whites = addPieceAt(whites, move.getDestination());
         long blacks = board.getBlacks();
-        for (int i : move.getPiecesTaken()) {
-          blacks = removePieceAt(blacks, i);
-        }
+        blacks = removePieceAt(blacks, move.getPieceTaken());
         return new BitBoard(blacks, whites, move);
-      } else {
+      }
+      else {
         long blacks = removePieceAt(board.getBlacks(), move.getOrigin());
         blacks = addPieceAt(blacks, move.getDestination());
         long whites = board.getWhites();
-        for (int i : move.getPiecesTaken()) {
-          whites = removePieceAt(whites, i);
-        }
+        whites = removePieceAt(whites, move.getPieceTaken());
         return new BitBoard(blacks, whites, move);
       }
     }
