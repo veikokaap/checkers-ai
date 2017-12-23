@@ -2,7 +2,6 @@ package ut.veikotiit.checkers.terminal;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import ut.veikotiit.checkers.Color;
@@ -10,6 +9,8 @@ import ut.veikotiit.checkers.bitboard.BitBoard;
 import ut.veikotiit.checkers.bitboard.BitUtil;
 import ut.veikotiit.checkers.minimax.MtdF;
 import ut.veikotiit.checkers.moves.Move;
+import ut.veikotiit.checkers.moves.MultiJumpMove;
+import ut.veikotiit.checkers.moves.SingleJumpMove;
 
 public class TerminalGame {
 
@@ -18,7 +19,7 @@ public class TerminalGame {
   public static final String ANSI_GREEN = "\u001B[32m";
   public static final String ANSI_YELLOW = "\u001B[33m";
   public static final String ANSI_BLUE = "\u001B[34m";
-  
+
   private BitBoard bitBoard = BitBoard.create(0b11111111111111111111L, 0b11111111111111111111000000000000000000000000000000L);
 
   public void play() {
@@ -67,10 +68,10 @@ public class TerminalGame {
             System.out.print(ANSI_BLUE + " B " + ANSI_RESET);
           }
           else if (whites.contains(index)) {
-            System.out.print(ANSI_RED + " W " + ANSI_RESET);
+            System.out.print(ANSI_GREEN + " W " + ANSI_RESET);
           }
           else {
-            System.out.print(" · ");
+            printEmpty(index);
           }
         }
         else {
@@ -85,5 +86,22 @@ public class TerminalGame {
       System.out.println("Score (" + bitBoard.getMove().getColor() + "): " + bitBoard.getScore(bitBoard.getMove().getColor()));
     }
     System.out.println();
+  }
+
+  private void printEmpty(int index) {
+    if (bitBoard.getMove() instanceof SingleJumpMove) {
+      if (((SingleJumpMove) bitBoard.getMove()).getPieceTaken() == index) {
+        System.out.print(ANSI_RED + " x " + ANSI_RESET);
+        return;
+      }
+    }
+    else if (bitBoard.getMove() instanceof MultiJumpMove) {
+      if (((MultiJumpMove) bitBoard.getMove()).takesPiece(index)) {
+        System.out.print(ANSI_RED + " x " + ANSI_RESET);
+        return;
+      }
+    }
+
+    System.out.print(" · ");
   }
 }
