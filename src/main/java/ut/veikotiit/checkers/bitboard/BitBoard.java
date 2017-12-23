@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import ut.veikotiit.checkers.Color;
+import ut.veikotiit.checkers.moves.MultiJumpMove;
 import ut.veikotiit.checkers.moves.SingleJumpMove;
 import ut.veikotiit.checkers.moves.JumpMoveGenerator;
 import ut.veikotiit.checkers.moves.Move;
@@ -88,7 +89,7 @@ public class BitBoard {
   }
 
   public List<BitBoard> getChildBoards(Color color) {
-    SingleJumpMove[] jumps = JumpMoveGenerator.generate(this, color);
+    MultiJumpMove[] jumps = JumpMoveGenerator.getJumps(this, color);
 
     // Mandatory taking
     if (jumps.length > 0) {
@@ -136,6 +137,15 @@ public class BitBoard {
         whites = removePieceAt(whites, move.getPieceTaken());
         return new BitBoard(blacks, whites, move);
       }
+    }
+
+    @Override
+    public BitBoard visit(BitBoard board, MultiJumpMove multiJumpMove) {
+      BitBoard newBoard = board;
+      for (SingleJumpMove singleJumpMove : multiJumpMove.getJumps()) {
+        newBoard = newBoard.move(singleJumpMove);
+      }
+      return newBoard;
     }
 
     private long removePieceAt(long pieces, int location) {

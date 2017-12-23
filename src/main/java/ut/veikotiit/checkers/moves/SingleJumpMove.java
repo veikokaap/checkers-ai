@@ -5,14 +5,12 @@ import java.util.Objects;
 import ut.veikotiit.checkers.Color;
 
 public class SingleJumpMove implements Move {
-  private final int origin;
-  private final int destination;
   private final Color color;
+  private final SimpleMove simpleMove;
   private final int pieceTaken;
 
   public SingleJumpMove(int origin, int destination, Color color, int pieceTaken) {
-    this.origin = origin;
-    this.destination = destination;
+    simpleMove = new SimpleMove(origin, destination, color);
     this.color = color;
     this.pieceTaken = pieceTaken;
   }
@@ -22,12 +20,8 @@ public class SingleJumpMove implements Move {
     return moveVisitor.visit(board, this);
   }
 
-  public int getOrigin() {
-    return origin;
-  }
-
-  public int getDestination() {
-    return destination;
+  public SimpleMove getSimpleMove() {
+    return simpleMove;
   }
 
   public Color getColor() {
@@ -38,33 +32,38 @@ public class SingleJumpMove implements Move {
     return pieceTaken;
   }
 
+  public int getOrigin() {
+    return simpleMove.getOrigin();
+  }
+  
+  public int getDestination() {
+    return simpleMove.getDestination();
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof SingleJumpMove)) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SingleJumpMove singleJumpMove = (SingleJumpMove) o;
-    return getOrigin() == singleJumpMove.getOrigin() &&
-        getDestination() == singleJumpMove.getDestination() &&
-        getPieceTaken() == singleJumpMove.getPieceTaken() &&
-        getColor() == singleJumpMove.getColor();
+    SingleJumpMove that = (SingleJumpMove) o;
+    return getPieceTaken() == that.getPieceTaken() &&
+        getColor() == that.getColor() &&
+        Objects.equals(getSimpleMove(), that.getSimpleMove());
   }
 
   @Override
   public int hashCode() {
-
-    return Objects.hash(getOrigin(), getDestination(), getColor(), getPieceTaken());
+    return Objects.hash(getColor(), getSimpleMove(), getPieceTaken());
   }
 
   @Override
   public String toString() {
     return "SingleJumpMove{" +
-        "origin=" + origin +
-        ", destination=" + destination +
-        ", color=" + color +
+        "color=" + color +
+        ", simpleMove=" + simpleMove +
         ", pieceTaken=" + pieceTaken +
         '}';
   }
