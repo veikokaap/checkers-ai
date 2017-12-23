@@ -122,20 +122,20 @@ public class BitBoard {
     }
 
     @Override
-    public BitBoard visit(BitBoard board, SingleJumpMove move) {
-      if (move.getColor() == Color.WHITE) {
-        long whites = removePieceAt(board.getWhites(), move.getOrigin());
-        whites = addPieceAt(whites, move.getDestination());
+    public BitBoard visit(BitBoard board, SingleJumpMove jumpMove) {
+      if (jumpMove.getColor() == Color.WHITE) {
+        long whites = removePieceAt(board.getWhites(), jumpMove.getOrigin());
+        whites = addPieceAt(whites, jumpMove.getDestination());
         long blacks = board.getBlacks();
-        blacks = removePieceAt(blacks, move.getPieceTaken());
-        return new BitBoard(blacks, whites, move);
+        blacks = removePieceAt(blacks, jumpMove.getPieceTaken());
+        return new BitBoard(blacks, whites, jumpMove);
       }
       else {
-        long blacks = removePieceAt(board.getBlacks(), move.getOrigin());
-        blacks = addPieceAt(blacks, move.getDestination());
+        long blacks = removePieceAt(board.getBlacks(), jumpMove.getOrigin());
+        blacks = addPieceAt(blacks, jumpMove.getDestination());
         long whites = board.getWhites();
-        whites = removePieceAt(whites, move.getPieceTaken());
-        return new BitBoard(blacks, whites, move);
+        whites = removePieceAt(whites, jumpMove.getPieceTaken());
+        return new BitBoard(blacks, whites, jumpMove);
       }
     }
 
@@ -145,7 +145,7 @@ public class BitBoard {
       for (SingleJumpMove singleJumpMove : multiJumpMove.getJumps()) {
         newBoard = newBoard.move(singleJumpMove);
       }
-      return newBoard;
+      return new BitBoard(newBoard.getBlacks(), newBoard.getWhites(), multiJumpMove);
     }
 
     private long removePieceAt(long pieces, int location) {

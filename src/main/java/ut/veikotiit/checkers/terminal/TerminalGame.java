@@ -30,21 +30,21 @@ public class TerminalGame {
     MtdF mtdF = new MtdF();
     while (true) {
       print();
-      Move blackMove = mtdF.search(bitBoard, Color.BLACK, 8);
+      Move blackMove = mtdF.search(bitBoard, Color.BLACK, 10);
       if (blackMove == null) {
         System.out.println("No legal moves for black");
         break;
       }
       bitBoard = bitBoard.move(blackMove);
-      Thread.sleep(1000);
+//      Thread.sleep(3000);
       print();
-      Move whiteMove = mtdF.search(bitBoard, Color.WHITE, 8);
+      Move whiteMove = mtdF.search(bitBoard, Color.WHITE, 2);
       if (whiteMove == null) {
         System.out.println("No legal moves for white");
         break;
       }
       bitBoard = bitBoard.move(whiteMove);
-      Thread.sleep(1000);
+//      Thread.sleep(3000);
     }
   }
 
@@ -75,7 +75,10 @@ public class TerminalGame {
       System.out.println("|");
     }
     System.out.println("+------------------------------+");
-    System.out.println();
+    if (bitBoard.getMove() != null) {
+      System.out.println("Move: " + bitBoard.getMove());
+      System.out.println("Score (" + bitBoard.getMove().getColor() + "): " + bitBoard.getScore(bitBoard.getMove().getColor()));
+    }
     System.out.println();
   }
 }

@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import ut.veikotiit.checkers.Color;
+
 public class MultiJumpMove implements Move {
   private final List<SingleJumpMove> jumps;
   
@@ -28,6 +30,11 @@ public class MultiJumpMove implements Move {
   public int getDestination() {
     return getJumps().get(getJumps().size() - 1).getDestination();
   }
+
+  public Color getColor() {
+    return jumps.get(0).getColor();
+  }
+
 
   @Override
   public boolean equals(Object o) {
