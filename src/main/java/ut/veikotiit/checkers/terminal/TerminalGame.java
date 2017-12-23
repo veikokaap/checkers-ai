@@ -13,8 +13,13 @@ import ut.veikotiit.checkers.moves.Move;
 
 public class TerminalGame {
 
+  public static final String ANSI_RESET = "\u001B[0m";
+  public static final String ANSI_RED = "\u001B[31m";
+  public static final String ANSI_GREEN = "\u001B[32m";
+  public static final String ANSI_YELLOW = "\u001B[33m";
+  public static final String ANSI_BLUE = "\u001B[34m";
+  
   private BitBoard bitBoard = BitBoard.create(0b11111111111111111111L, 0b11111111111111111111000000000000000000000000000000L);
-  private final Scanner scanner = new Scanner(System.in);
 
   public void play() {
     System.out.println("Welcome");
@@ -36,7 +41,7 @@ public class TerminalGame {
         break;
       }
       bitBoard = bitBoard.move(blackMove);
-//      Thread.sleep(3000);
+      Thread.sleep(2000);
       print();
       Move whiteMove = mtdF.search(bitBoard, Color.WHITE, 2);
       if (whiteMove == null) {
@@ -44,7 +49,7 @@ public class TerminalGame {
         break;
       }
       bitBoard = bitBoard.move(whiteMove);
-//      Thread.sleep(3000);
+      Thread.sleep(2000);
     }
   }
 
@@ -59,10 +64,10 @@ public class TerminalGame {
         if ((i + j) % 2 == 1) {
           int index = (5 * i) + (j / 2);
           if (blacks.contains(index)) {
-            System.out.print(" B ");
+            System.out.print(ANSI_BLUE + " B " + ANSI_RESET);
           }
           else if (whites.contains(index)) {
-            System.out.print(" W ");
+            System.out.print(ANSI_RED + " W " + ANSI_RESET);
           }
           else {
             System.out.print(" · ");
