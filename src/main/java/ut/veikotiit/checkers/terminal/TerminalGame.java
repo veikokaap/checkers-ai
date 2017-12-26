@@ -20,7 +20,7 @@ public class TerminalGame {
   public static final String ANSI_YELLOW = "\u001B[33m";
   public static final String ANSI_BLUE = "\u001B[34m";
 
-  private BitBoard bitBoard = BitBoard.create(0b11111111111111111111L, 0b11111111111111111111000000000000000000000000000000L);
+  private BitBoard bitBoard = BitBoard.create(0b11111111111111111111L, 0b11111111111111111111000000000000000000000000000000L, 0L);
 
   public void play() {
     System.out.println("Welcome");
@@ -42,21 +42,23 @@ public class TerminalGame {
         break;
       }
       bitBoard = bitBoard.move(blackMove);
-      Thread.sleep(2000);
+//      Thread.sleep(2000);
       print();
-      Move whiteMove = mtdF.search(bitBoard, Color.WHITE, 2);
+      Move whiteMove = mtdF.search(bitBoard, Color.WHITE, 10);
       if (whiteMove == null) {
         System.out.println("No legal moves for white");
         break;
       }
       bitBoard = bitBoard.move(whiteMove);
-      Thread.sleep(2000);
+//      Thread.sleep(2000);
     }
   }
 
   private void print() {
     List<Integer> blacks = Arrays.stream(BitUtil.longToBits(bitBoard.getBlacks())).boxed().collect(Collectors.toList());
+    List<Integer> blackKings = Arrays.stream(BitUtil.longToBits(bitBoard.getBlackKings())).boxed().collect(Collectors.toList());
     List<Integer> whites = Arrays.stream(BitUtil.longToBits(bitBoard.getWhites())).boxed().collect(Collectors.toList());
+    List<Integer> whiteKings = Arrays.stream(BitUtil.longToBits(bitBoard.getWhiteKings())).boxed().collect(Collectors.toList());
 
     System.out.println("+------------------------------+");
     for (int i = 0; i < 10; i++) {
@@ -64,11 +66,17 @@ public class TerminalGame {
       for (int j = 0; j < 10; j++) {
         if ((i + j) % 2 == 1) {
           int index = (5 * i) + (j / 2);
-          if (blacks.contains(index)) {
+          if (blackKings.contains(index)) {
             System.out.print(ANSI_BLUE + " B " + ANSI_RESET);
           }
-          else if (whites.contains(index)) {
+          else if (blacks.contains(index) ) {
+            System.out.print(ANSI_BLUE + " b " + ANSI_RESET);
+          }
+          else if (whiteKings.contains(index)) {
             System.out.print(ANSI_GREEN + " W " + ANSI_RESET);
+          }
+          else if (whites.contains(index)) {
+            System.out.print(ANSI_GREEN + " w " + ANSI_RESET);
           }
           else {
             printEmpty(index);

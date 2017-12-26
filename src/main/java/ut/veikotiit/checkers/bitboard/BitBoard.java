@@ -6,13 +6,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import ut.veikotiit.checkers.Color;
-import ut.veikotiit.checkers.moves.MultiJumpMove;
-import ut.veikotiit.checkers.moves.SingleJumpMove;
 import ut.veikotiit.checkers.moves.JumpMoveGenerator;
 import ut.veikotiit.checkers.moves.Move;
 import ut.veikotiit.checkers.moves.MoveVisitor;
+import ut.veikotiit.checkers.moves.MultiJumpMove;
 import ut.veikotiit.checkers.moves.SimpleMove;
 import ut.veikotiit.checkers.moves.SimpleMoveGenerator;
+import ut.veikotiit.checkers.moves.SingleJumpMove;
 
 public class BitBoard {
 
@@ -20,15 +20,17 @@ public class BitBoard {
 
   private final long blacks;
   private final long whites;
+  private final long kings;
   private final Move move;
 
-  public static BitBoard create(long blacks, long whites) {
-    return new BitBoard(blacks, whites, null);
+  public static BitBoard create(long blacks, long whites, long kings) {
+    return new BitBoard(blacks, whites, kings, null);
   }
 
-  private BitBoard(long blacks, long whites, Move move) {
+  private BitBoard(long blacks, long whites, long kings, Move move) {
     this.blacks = blacks;
     this.whites = whites;
+    this.kings = kings;
     this.move = move;
   }
 
@@ -38,6 +40,14 @@ public class BitBoard {
 
   public long getWhites() {
     return whites;
+  }
+
+  public long getWhiteKings() {
+    return whites & kings;
+  }
+
+  public long getBlackKings() {
+    return blacks & kings;
   }
 
   public Move getMove() {
@@ -53,7 +63,7 @@ public class BitBoard {
   }
 
   public int getScore(Color color) {
-    int score = Long.bitCount(blacks) - Long.bitCount(whites);
+    int score = Long.bitCount(blacks) + Long.bitCount(getBlackKings()) - Long.bitCount(whites) - Long.bitCount(getWhiteKings());
     if (color == Color.WHITE) {
       score *= -1;
     }
@@ -108,11 +118,55 @@ public class BitBoard {
     @Override
     public BitBoard visit(BitBoard bitBoard, SimpleMove move) {
       if (move.getColor() == Color.WHITE) {
-        return new BitBoard(bitBoard.getBlacks(), simpleMove(bitBoard.getWhites(), move), move);
+        return new BitBoard(bitBoard.getBlacks(), simpleMove(bitBoard.getWhites(), move), moveKings(bitBoard, move), move);
       }
       else {
-        return new BitBoard(simpleMove(bitBoard.getBlacks(), move), bitBoard.getWhites(), move);
+        return new BitBoard(simpleMove(bitBoard.getBlacks(), move), bitBoard.getWhites(), moveKings(bitBoard, move), move);
       }
+    }
+
+    private long moveKings(BitBoard bitBoard, Move move) {
+      long kings = bitBoard.kings;
+      if (moveDestinationInLastRow(move)) {
+        kings |= BitUtil.getBitAt(move.getDestination());
+      }
+
+      if (pieceWasKing(bitBoard, move.getOrigin())) {
+        kings &= (~BitUtil.getBitAt(move.getOrigin()));
+        kings |= BitUtil.getBitAt(move.getDestination());
+      }
+
+      if (move instanceof MultiJumpMove) {
+        for (SingleJumpMove singleJumpMove : ((MultiJumpMove) move).getJumps()) {
+          kings = jumpKing(bitBoard, kings, singleJumpMove);
+        }
+      }
+      else if (move instanceof SingleJumpMove) {
+        kings = jumpKing(bitBoard, kings, (SingleJumpMove) move);
+      }
+
+      return kings;
+    }
+
+    private long jumpKing(BitBoard bitBoard, long kings, SingleJumpMove singleJumpMove) {
+      if (pieceWasKing(bitBoard, singleJumpMove.getPieceTaken())) {
+        kings &= (~BitUtil.getBitAt(singleJumpMove.getPieceTaken()));
+      }
+      return kings;
+    }
+
+    private boolean pieceWasKing(BitBoard bitBoard, int piece) {
+      return (BitUtil.getBitAt(piece) & bitBoard.kings) != 0;
+    }
+
+    private boolean moveDestinationInLastRow(Move move) {
+      if (move.getColor() == Color.WHITE && (BitUtil.getBitAt(move.getDestination()) & BitUtil.MASK_ROW_1) != 0) {
+        return true;
+      }
+      if (move.getColor() == Color.BLACK && (BitUtil.getBitAt(move.getDestination()) & BitUtil.MASK_ROW_10) != 0) {
+        return true;
+      }
+      return false;
     }
 
     private long simpleMove(long pieces, SimpleMove move) {
@@ -128,14 +182,14 @@ public class BitBoard {
         whites = addPieceAt(whites, jumpMove.getDestination());
         long blacks = board.getBlacks();
         blacks = removePieceAt(blacks, jumpMove.getPieceTaken());
-        return new BitBoard(blacks, whites, jumpMove);
+        return new BitBoard(blacks, whites, moveKings(board, jumpMove), jumpMove);
       }
       else {
         long blacks = removePieceAt(board.getBlacks(), jumpMove.getOrigin());
         blacks = addPieceAt(blacks, jumpMove.getDestination());
         long whites = board.getWhites();
         whites = removePieceAt(whites, jumpMove.getPieceTaken());
-        return new BitBoard(blacks, whites, jumpMove);
+        return new BitBoard(blacks, whites, moveKings(board, jumpMove), jumpMove);
       }
     }
 
@@ -145,7 +199,7 @@ public class BitBoard {
       for (SingleJumpMove singleJumpMove : multiJumpMove.getJumps()) {
         newBoard = newBoard.move(singleJumpMove);
       }
-      return new BitBoard(newBoard.getBlacks(), newBoard.getWhites(), multiJumpMove);
+      return new BitBoard(newBoard.getBlacks(), newBoard.getWhites(), moveKings(board, multiJumpMove), multiJumpMove);
     }
 
     private long removePieceAt(long pieces, int location) {

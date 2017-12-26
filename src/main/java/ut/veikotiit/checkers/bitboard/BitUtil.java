@@ -5,7 +5,6 @@ import java.util.stream.IntStream;
 public class BitUtil {
   public static final long ALL_BITS = 0b11111111111111111111111111111111111111111111111111L; // 50 bits set to 1. Alternative is to write 2^51-1.
   private static final long[] BITS = new long[50];
-
   static {
     BITS[0] = 0b1L;
     for (int i = 1; i < 50; i++) {
@@ -32,6 +31,9 @@ public class BitUtil {
   //squares to where +6 is legal move for white
   public static final long MASK_R6 = MASK_L4
       | BITS[46] | BITS[47] | BITS[48] | BITS[49];
+  
+  public static final long MASK_ROW_10 = BITS[45] | BITS[46] | BITS[47] | BITS[48] | BITS[49];
+  public static final long MASK_ROW_1 = BITS[0] | BITS[1] | BITS[2] | BITS[3] | BITS[4];
 
   public static long getBitAt(int i) {
     return BITS[i];
