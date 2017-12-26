@@ -8,6 +8,7 @@ import ut.veikotiit.checkers.transposition.CachedValue;
 import ut.veikotiit.checkers.transposition.TranspositionTable;
 
 public class Negamax {
+
   public Result recursive(BitBoard board, Color color, int alpha, int beta, int depth, TranspositionTable transpositionTable) {
     int originalAlpha = alpha;
     CachedValue cachedValue = transpositionTable.get(board);
@@ -37,13 +38,10 @@ public class Negamax {
       transpositionTable.put(board, createNewCachedValue(alpha, beta, depth, score));
       return new Result(score, null);
     }
-
+    
     List<BitBoard> childBoards = board.getChildBoards(color);
     if (childBoards.isEmpty()) {
-      int score = board.getScore(color);
-      if (Math.abs(score) > 100) {
-        score *= 100;
-      }
+      int score = -10000; // Defeat
       transpositionTable.put(board, createNewCachedValue(alpha, beta, depth, score));
       return new Result(score, null);
     }
@@ -54,9 +52,6 @@ public class Negamax {
       Result result = recursive(child, color.getOpponent(), -beta, -alpha, depth - 1, transpositionTable);
       int score = result.getScore();
       score *= -1;
-//      if (score == null) {
-//        return null;
-//      }
 
       if (score > bestValue) {
         bestValue = score;
