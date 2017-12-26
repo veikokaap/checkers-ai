@@ -115,11 +115,19 @@ public class TerminalGame {
       System.out.println("|");
     }
     System.out.println("+------------------------------+");
+    printMove();
+    System.out.println();
+  }
+
+  private void printMove() {
     if (bitBoard.getMove() != null) {
-      System.out.println("Move: " + bitBoard.getMove());
+      if (bitBoard.getMove() instanceof MultiJumpMove && ((MultiJumpMove) bitBoard.getMove()).getJumps().size() == 1) {
+        System.out.println("Move: " + ((MultiJumpMove) bitBoard.getMove()).getJumps().get(0));
+      } else {
+        System.out.println("Move: " + bitBoard.getMove());
+      }
       System.out.println("Score (" + bitBoard.getMove().getColor() + "): " + bitBoard.getScore(bitBoard.getMove().getColor()));
     }
-    System.out.println();
   }
 
   private void printEmpty(int index) {
