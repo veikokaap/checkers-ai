@@ -6,8 +6,16 @@ import ut.veikotiit.checkers.moves.Move;
 import ut.veikotiit.checkers.transposition.TranspositionTable;
 
 public class MtdF {
+  
+  private long startTime;
+  private final long timeGiven;
+
+  public MtdF(long timeGiven) {
+    this.timeGiven = timeGiven;
+  }
 
   public Move search(BitBoard board, Color color, int max_depth) {
+    startTime = System.currentTimeMillis();
     TranspositionTable transpositionTable = new TranspositionTable();
 
     int depth = 0;
@@ -25,7 +33,7 @@ public class MtdF {
       Negamax.Result newResult = internal(board, color, depth, transpositionTable, firstGuess);
 
       if (newResult == null) {
-        break;
+        break; // Time exceeded
       } else {
         bestResult = newResult;
       }
@@ -34,12 +42,12 @@ public class MtdF {
     if (bestResult == null || bestResult.getBoard() == null) {
       return null;
     }
-
+    
     return bestResult.getBoard().getMove();
   }
 
   private Negamax.Result internal(BitBoard board, Color color, int depth, TranspositionTable transpositionTable, int firstGuess) {
-    Negamax negamax = new Negamax();
+    Negamax negamax = new Negamax(startTime, timeGiven);
 
     int upperBound = Integer.MAX_VALUE;
     int lowerBound = Integer.MIN_VALUE;
@@ -48,6 +56,10 @@ public class MtdF {
     while (lowerBound < upperBound) {
       int beta = Math.max(firstGuess, lowerBound + 1);
       Negamax.Result result = negamax.recursive(board, color, beta - 1, beta, depth, transpositionTable);
+      
+      if (result == null) {
+        return null; // Time exceeded
+      }
 
       bestResult = result;
       firstGuess = result.getScore();

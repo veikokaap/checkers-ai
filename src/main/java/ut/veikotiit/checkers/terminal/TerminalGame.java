@@ -46,7 +46,7 @@ public class TerminalGame {
   }
 
   private void startGame() throws InterruptedException {
-    MtdF mtdF = new MtdF();
+    MtdF mtdF = new MtdF(2000);
     while (true) {
       if (move(mtdF, Color.WHITE, "No legal moves for white")) {
         break;
@@ -55,15 +55,12 @@ public class TerminalGame {
         break;
       }
 
-      Thread.sleep(3000);
-
       if (move(mtdF, Color.BLACK, "No legal moves for black")) {
         break;
       }
       if (sameBoardThirdTime(blackBitboardStateCounters)) {
         break;
       }
-      Thread.sleep(3000);
     }
   }
 
@@ -82,7 +79,7 @@ public class TerminalGame {
 
   private boolean move(MtdF mtdF, Color color, String gameOverMessage) {
     print();
-    Move whiteMove = mtdF.search(bitBoard, color, 4);
+    Move whiteMove = mtdF.search(bitBoard, color, 100);
     if (whiteMove == null) {
       System.out.println(gameOverMessage);
       return true;
