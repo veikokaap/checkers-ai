@@ -21,10 +21,18 @@ public class TerminalGame {
   public static final String ANSI_GREEN = "\u001B[32m";
   public static final String ANSI_YELLOW = "\u001B[33m";
   public static final String ANSI_BLUE = "\u001B[34m";
+  public static final String ANSI_CLEAR_SCREEN = "\033[H\033[2J";
+  private static final String ANSI_BACKGROUND_BLACK = "\u001b[42m";
+  private static final String ANSI_BACKGROUND_WHITE = "\u001b[44m";
+  private static final String ANSI_TEXT_BLACK = "\u001b[30m";
+  private static final String ANSI_TEXT_WHITE = "\u001b[37m";
+  private static final String ANSI_BACKGROUND_YELLOW = "\u001b[43;1m";
+  
+  private static String UNDERLINED_TEXT = "\u001b[4m";
 
   private final HashMap<BitBoard, AtomicInteger> whiteBitboardStateCounters = new HashMap<>();
   private final HashMap<BitBoard, AtomicInteger> blackBitboardStateCounters = new HashMap<>();
-  
+
   private BitBoard bitBoard = BitBoard.create(0b11111111111111111111L, 0b11111111111111111111000000000000000000000000000000L, 0L);
 
   public void play() {
@@ -47,12 +55,15 @@ public class TerminalGame {
         break;
       }
 
+      Thread.sleep(3000);
+
       if (move(mtdF, Color.BLACK, "No legal moves for black")) {
         break;
       }
-      if (sameBoardThirdTime(whiteBitboardStateCounters)) {
+      if (sameBoardThirdTime(blackBitboardStateCounters)) {
         break;
       }
+      Thread.sleep(3000);
     }
   }
 
@@ -65,13 +76,13 @@ public class TerminalGame {
       System.out.println("DRAW!");
       return true;
     }
-    
+
     return false;
   }
 
   private boolean move(MtdF mtdF, Color color, String gameOverMessage) {
     print();
-    Move whiteMove = mtdF.search(bitBoard, color, 8);
+    Move whiteMove = mtdF.search(bitBoard, color, 4);
     if (whiteMove == null) {
       System.out.println(gameOverMessage);
       return true;
@@ -80,37 +91,51 @@ public class TerminalGame {
     return false;
   }
 
+  private void clearScreen() {
+    System.out.print(ANSI_CLEAR_SCREEN);
+    System.out.flush();
+  }
+
   private void print() {
     List<Integer> blacks = Arrays.stream(BitUtil.longToBits(bitBoard.getBlacks())).boxed().collect(Collectors.toList());
     List<Integer> blackKings = Arrays.stream(BitUtil.longToBits(bitBoard.getBlackKings())).boxed().collect(Collectors.toList());
     List<Integer> whites = Arrays.stream(BitUtil.longToBits(bitBoard.getWhites())).boxed().collect(Collectors.toList());
     List<Integer> whiteKings = Arrays.stream(BitUtil.longToBits(bitBoard.getWhiteKings())).boxed().collect(Collectors.toList());
 
+    clearScreen();
+
     System.out.println("+------------------------------+");
     for (int i = 0; i < 10; i++) {
       System.out.print("|");
       for (int j = 0; j < 10; j++) {
+        System.out.print(" ");
         if ((i + j) % 2 == 1) {
           int index = (5 * i) + (j / 2);
-          if (blackKings.contains(index)) {
-            System.out.print(ANSI_BLUE + " B " + ANSI_RESET);
+          if (bitBoard.getMove() != null) {
+            if (bitBoard.getMove().getDestination() == index) {
+              System.out.print(UNDERLINED_TEXT);
+            }
           }
-          else if (blacks.contains(index) ) {
-            System.out.print(ANSI_BLUE + " b " + ANSI_RESET);
+          if (blackKings.contains(index)) {
+            System.out.print(ANSI_GREEN + "\u2605" + ANSI_RESET);
+          }
+          else if (blacks.contains(index)) {
+            System.out.print(ANSI_GREEN + "\u25CF" + ANSI_RESET);
           }
           else if (whiteKings.contains(index)) {
-            System.out.print(ANSI_GREEN + " W " + ANSI_RESET);
+            System.out.print(ANSI_BLUE + "\u2605" + ANSI_RESET);
           }
           else if (whites.contains(index)) {
-            System.out.print(ANSI_GREEN + " w " + ANSI_RESET);
+            System.out.print(ANSI_BLUE + "\u25CF" + ANSI_RESET);
           }
           else {
             printEmpty(index);
           }
         }
         else {
-          System.out.print("   ");
+          System.out.print(" ");
         }
+        System.out.print(" ");
       }
       System.out.println("|");
     }
@@ -123,7 +148,8 @@ public class TerminalGame {
     if (bitBoard.getMove() != null) {
       if (bitBoard.getMove() instanceof MultiJumpMove && ((MultiJumpMove) bitBoard.getMove()).getJumps().size() == 1) {
         System.out.println("Move: " + ((MultiJumpMove) bitBoard.getMove()).getJumps().get(0));
-      } else {
+      }
+      else {
         System.out.println("Move: " + bitBoard.getMove());
       }
       System.out.println("Score (" + bitBoard.getMove().getColor() + "): " + bitBoard.getScore(bitBoard.getMove().getColor()));
@@ -133,17 +159,38 @@ public class TerminalGame {
   private void printEmpty(int index) {
     if (bitBoard.getMove() instanceof SingleJumpMove) {
       if (((SingleJumpMove) bitBoard.getMove()).getPieceTaken() == index) {
-        System.out.print(ANSI_RED + " x " + ANSI_RESET);
+        System.out.print(ANSI_RED + "x" + ANSI_RESET);
         return;
       }
     }
     else if (bitBoard.getMove() instanceof MultiJumpMove) {
       if (((MultiJumpMove) bitBoard.getMove()).takesPiece(index)) {
-        System.out.print(ANSI_RED + " x " + ANSI_RESET);
+        System.out.print(ANSI_RED + "x" + ANSI_RESET);
         return;
       }
     }
 
-    System.out.print(" · ");
+    if (bitBoard.getMove() != null) {
+      if (bitBoard.getMove().getOrigin() == index) {
+        if (bitBoard.getMove().getColor() == Color.BLACK) {
+          System.out.print(ANSI_GREEN);
+        } else {
+          System.out.print(ANSI_BLUE);
+        }
+        System.out.print("\u25CC" + ANSI_RESET);
+      }else {
+        if (bitBoard.getMove() instanceof MultiJumpMove) {
+          for (SingleJumpMove singleJumpMove : ((MultiJumpMove) bitBoard.getMove()).getJumps()) {
+            if (singleJumpMove.getDestination() == index) {
+              System.out.print(UNDERLINED_TEXT);
+            }
+          }
+        }
+        System.out.print("·" + ANSI_RESET);
+      }
+    }
+    else {
+      System.out.print("·" + ANSI_RESET);
+    }
   }
 }
