@@ -99,7 +99,7 @@ public class TerminalGame {
     List<Integer> whites = Arrays.stream(BitUtil.longToBits(bitBoard.getWhites())).boxed().collect(Collectors.toList());
     List<Integer> whiteKings = Arrays.stream(BitUtil.longToBits(bitBoard.getWhiteKings())).boxed().collect(Collectors.toList());
 
-//    clearScreen();
+    clearScreen();
 
     System.out.println("+------------------------------+");
     for (int i = 0; i < 10; i++) {
