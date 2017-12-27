@@ -46,7 +46,7 @@ public class TerminalGame {
   }
 
   private void startGame() throws InterruptedException {
-    MtdF mtdF = new MtdF(2000);
+    MtdF mtdF = new MtdF(500);
     while (true) {
       if (move(mtdF, Color.WHITE, "No legal moves for white")) {
         break;
@@ -99,7 +99,7 @@ public class TerminalGame {
     List<Integer> whites = Arrays.stream(BitUtil.longToBits(bitBoard.getWhites())).boxed().collect(Collectors.toList());
     List<Integer> whiteKings = Arrays.stream(BitUtil.longToBits(bitBoard.getWhiteKings())).boxed().collect(Collectors.toList());
 
-    clearScreen();
+//    clearScreen();
 
     System.out.println("+------------------------------+");
     for (int i = 0; i < 10; i++) {
