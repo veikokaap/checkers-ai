@@ -1,12 +1,16 @@
 package ut.veikotiit.checkers.bitboard;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import ut.veikotiit.checkers.Color;
 import ut.veikotiit.checkers.moves.JumpMoveGenerator;
+import ut.veikotiit.checkers.moves.KingMoveGenerator;
 import ut.veikotiit.checkers.moves.Move;
 import ut.veikotiit.checkers.moves.MoveVisitor;
 import ut.veikotiit.checkers.moves.MultiJumpMove;
@@ -67,10 +71,14 @@ public class BitBoard {
     return move;
   }
 
-  public long getPlayerBitboard(Color color) {
+  public long getPlayerPieces(Color color) {
     return color == Color.WHITE ? whites : blacks;
   }
 
+  public long getPlayerKings(Color color) {
+    return color == Color.WHITE ? getWhiteKings() : getBlackKings();
+  }
+  
   public BitBoard move(Move move) {
     return move.visit(this, bitBoardMover);
   }
@@ -112,18 +120,23 @@ public class BitBoard {
   }
 
   public List<BitBoard> getChildBoards(Color color) {
-    MultiJumpMove[] jumps = JumpMoveGenerator.getJumps(this, color);
+    Set<MultiJumpMove> jumps = JumpMoveGenerator.getJumps(this, color);
 
     // Mandatory taking
-    if (jumps.length > 0) {
-      return Arrays.stream(jumps)
+    if (jumps.size() > 0) {
+      return jumps.stream()
           .map(this::move)
           .collect(Collectors.toList());
     }
     else {
-      return Arrays.stream(SimpleMoveGenerator.generate(this, color))
+      return Stream.of(SimpleMoveGenerator.generate(this, color), KingMoveGenerator.getMoves(this, color))
+          .flatMap(Collection::stream)
           .map(this::move)
           .collect(Collectors.toList());
+//      
+//      return Arrays.stream(SimpleMoveGenerator.generate(this, color))
+//          .map(this::move)
+//          .collect(Collectors.toList());
     }
   }
 

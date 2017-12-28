@@ -1,6 +1,8 @@
 package ut.veikotiit.checkers.moves;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import ut.veikotiit.checkers.Color;
@@ -10,11 +12,11 @@ import ut.veikotiit.checkers.bitboard.BitUtil;
 
 public class SimpleMoveGenerator {
 
-  public static SimpleMove[] generate(BitBoard board, Color color) {
+  public static Set<SimpleMove> generate(BitBoard board, Color color) {
     if (color == Color.WHITE) {
-      return getWhiteMoves(board);
+      return new HashSet<>(Arrays.asList(getWhiteMoves(board)));
     } else {
-      return getBlackMoves(board);
+      return new HashSet<>(Arrays.asList(getBlackMoves(board)));
     }
   }
 
