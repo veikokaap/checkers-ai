@@ -46,7 +46,7 @@ public class TerminalGame {
   }
 
   private void startGame() throws InterruptedException {
-    MtdF mtdF = new MtdF(250);
+    MtdF mtdF = new MtdF(1000);
     while (true) {
       if (move(mtdF, Color.WHITE, "No legal moves for white")) {
         break;

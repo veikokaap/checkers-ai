@@ -53,7 +53,7 @@ public class Negamax {
     
     List<BitBoard> childBoards = board.getChildBoards(color);
     if (childBoards.isEmpty()) {
-      int score = -10000; // Defeat
+      int score = -10000 - depth; // Defeat
       transpositionTable.put(board, createNewCachedValue(alpha, beta, depth, score));
       return new Result(score, null);
     }

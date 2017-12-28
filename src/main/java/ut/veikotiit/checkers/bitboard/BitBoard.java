@@ -84,7 +84,7 @@ public class BitBoard {
   }
 
   public int getScore(Color color) {
-    int score = Long.bitCount(blacks) + Long.bitCount(getBlackKings()) - Long.bitCount(whites) - Long.bitCount(getWhiteKings());
+    int score = Long.bitCount(blacks) + 5 * Long.bitCount(getBlackKings()) - Long.bitCount(whites) - 5 * Long.bitCount(getWhiteKings());
     if (color == Color.WHITE) {
       score *= -1;
     }
@@ -123,11 +123,6 @@ public class BitBoard {
       return MoveGenerator.getAllMoves(this, color).stream()
           .map(this::move)
           .collect(Collectors.toList());
-//      
-//      return Arrays.stream(SimpleMoveGenerator.generate(this, color))
-//          .map(this::move)
-//          .collect(Collectors.toList());
-    
   }
 
   private static class BitBoardMover implements MoveVisitor<BitBoard> {
