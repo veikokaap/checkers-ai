@@ -56,7 +56,7 @@ public class SingleJumpMove implements Move {
 
   @Override
   public int hashCode() {
-    return Objects.hash(getColor(), getSimpleMove(), getPieceTaken());
+    return Objects.hash(getSimpleMove(), getPieceTaken());
   }
 
   @Override

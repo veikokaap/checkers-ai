@@ -12,49 +12,7 @@ import ut.veikotiit.checkers.bitboard.BitBoard;
 import ut.veikotiit.checkers.bitboard.BitUtil;
 
 public class JumpMoveGenerator {
-
-  public static Set<MultiJumpMove> getJumps(BitBoard board, Color color) {
-    Set<SingleJumpMove> singleJumps = getSingleJumps(board, color);
-    Set<MultiJumpMove> multiJumpMoves = singleJumps.stream()
-        .map(MultiJumpMove::new)
-        .collect(Collectors.toSet());
-
-    return findMultiJumps(multiJumpMoves, board, color);
-  }
-
-  private static Set<MultiJumpMove> findMultiJumps(Set<MultiJumpMove> previousJumps, BitBoard board, Color color) {
-    while (true) {
-      Set<MultiJumpMove> newJumps = new HashSet<>();
-
-      for (MultiJumpMove multiJump : previousJumps) {
-        BitBoard newBoard = moveBoardWithoutTakingPieces(board, multiJump);
-
-        Set<SingleJumpMove> singleJumps = getSingleJumps(newBoard, color);
-        for (SingleJumpMove newJump : singleJumps) {
-          if (multiJump.getDestination() == newJump.getOrigin() && !multiJump.takesPiece(newJump.getPieceTaken())) {
-            newJumps.add(new MultiJumpMove(multiJump, newJump));
-          }
-        }
-      }
-
-      if (newJumps.isEmpty()) {
-        return previousJumps;
-      }
-      else {
-        previousJumps = newJumps;
-      }
-    }
-  }
-
-  private static BitBoard moveBoardWithoutTakingPieces(BitBoard board, MultiJumpMove multiJump) {
-    BitBoard newBoard = board;
-    for (SingleJumpMove jump : multiJump.getJumps()) {
-      newBoard = newBoard.move(jump.getSimpleMove());
-    }
-    return newBoard;
-  }
-
-
+  
   public static Set<SingleJumpMove> getSingleJumps(BitBoard board, Color color) {
     long myPieces, opponentPieces;
     if (color == Color.WHITE) {

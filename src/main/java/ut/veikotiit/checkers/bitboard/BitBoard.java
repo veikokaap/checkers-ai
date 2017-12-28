@@ -1,6 +1,5 @@
 package ut.veikotiit.checkers.bitboard;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -12,6 +11,7 @@ import ut.veikotiit.checkers.Color;
 import ut.veikotiit.checkers.moves.JumpMoveGenerator;
 import ut.veikotiit.checkers.moves.KingMoveGenerator;
 import ut.veikotiit.checkers.moves.Move;
+import ut.veikotiit.checkers.moves.MoveGenerator;
 import ut.veikotiit.checkers.moves.MoveVisitor;
 import ut.veikotiit.checkers.moves.MultiJumpMove;
 import ut.veikotiit.checkers.moves.SimpleMove;
@@ -120,24 +120,14 @@ public class BitBoard {
   }
 
   public List<BitBoard> getChildBoards(Color color) {
-    Set<MultiJumpMove> jumps = JumpMoveGenerator.getJumps(this, color);
-
-    // Mandatory taking
-    if (jumps.size() > 0) {
-      return jumps.stream()
-          .map(this::move)
-          .collect(Collectors.toList());
-    }
-    else {
-      return Stream.of(SimpleMoveGenerator.generate(this, color), KingMoveGenerator.getMoves(this, color))
-          .flatMap(Collection::stream)
+      return MoveGenerator.getAllMoves(this, color).stream()
           .map(this::move)
           .collect(Collectors.toList());
 //      
 //      return Arrays.stream(SimpleMoveGenerator.generate(this, color))
 //          .map(this::move)
 //          .collect(Collectors.toList());
-    }
+    
   }
 
   private static class BitBoardMover implements MoveVisitor<BitBoard> {
