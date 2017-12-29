@@ -207,12 +207,16 @@ public class TerminalGame {
 
 
   private void selectionUp() {
-    Optional<Integer> down = rowMoveMap.keySet().stream()
+    Optional<Integer> up = rowMoveMap.keySet().stream()
         .sorted(Collections.reverseOrder())
         .filter(i -> i < selection)
         .findFirst();
 
-    down.ifPresent(i -> selection = i);
+    up.ifPresent(i -> selection = i);
+    
+    if (!up.isPresent()) {
+      selection = rowMoveMap.keySet().stream().sorted().collect(Collectors.toList()).get(0) - 1;
+    }
   }
 
   private void selectionDown() {
@@ -230,13 +234,19 @@ public class TerminalGame {
   }
 
   private void printBoard(Color color) throws IOException {
-    List<Integer> blacks = Arrays.stream(BitUtil.longToBits(bitBoard.getBlacks())).boxed().collect(Collectors.toList());
-    List<Integer> blackKings = Arrays.stream(BitUtil.longToBits(bitBoard.getBlackKings())).boxed().collect(Collectors.toList());
-    List<Integer> whites = Arrays.stream(BitUtil.longToBits(bitBoard.getWhites())).boxed().collect(Collectors.toList());
-    List<Integer> whiteKings = Arrays.stream(BitUtil.longToBits(bitBoard.getWhiteKings())).boxed().collect(Collectors.toList());
+    BitBoard shownBoard = bitBoard;
+
+    if (color == player && rowMoveMap.containsKey(selection)) {
+      shownBoard = bitBoard.move(rowMoveMap.get(selection));
+    }
+    
+    List<Integer> blacks = Arrays.stream(BitUtil.longToBits(shownBoard.getBlacks())).boxed().collect(Collectors.toList());
+    List<Integer> blackKings = Arrays.stream(BitUtil.longToBits(shownBoard.getBlackKings())).boxed().collect(Collectors.toList());
+    List<Integer> whites = Arrays.stream(BitUtil.longToBits(shownBoard.getWhites())).boxed().collect(Collectors.toList());
+    List<Integer> whiteKings = Arrays.stream(BitUtil.longToBits(shownBoard.getWhiteKings())).boxed().collect(Collectors.toList());
 
     clearScreen();
-
+    
     println("+------------------------------+");
     for (int i = 0; i < 10; i++) {
       print("|");
@@ -244,8 +254,8 @@ public class TerminalGame {
         print(" ");
         if ((i + j) % 2 == 1) {
           int index = (5 * i) + (j / 2);
-          if (bitBoard.getMove() != null) {
-            if (bitBoard.getMove().getDestination() == index) {
+          if (shownBoard.getMove() != null) {
+            if (shownBoard.getMove().getDestination() == index) {
               terminal.enableSGR(SGR.UNDERLINE);
             }
           }
@@ -270,7 +280,7 @@ public class TerminalGame {
             terminal.resetColorAndSGR();
           }
           else {
-            printEmpty(index);
+            printEmpty(shownBoard, index);
           }
         }
         else {
@@ -287,7 +297,7 @@ public class TerminalGame {
       List<BitBoard> childBoards = bitBoard.getChildBoards(color);
 
       if (selection == -1) {
-        selection = terminal.getCursorPosition().getRow();
+        selection = terminal.getCursorPosition().getRow() - 1;
       }
 
       for (BitBoard childBoard : childBoards) {
@@ -313,17 +323,17 @@ public class TerminalGame {
     }
   }
 
-  private void printEmpty(int index) throws IOException {
-    if (bitBoard.getMove() instanceof SingleJumpMove) {
-      if (((SingleJumpMove) bitBoard.getMove()).getPieceTaken() == index) {
+  private void printEmpty(BitBoard shownBoard, int index) throws IOException {
+    if (shownBoard.getMove() instanceof SingleJumpMove) {
+      if (((SingleJumpMove) shownBoard.getMove()).getPieceTaken() == index) {
         terminal.setForegroundColor(TextColor.ANSI.RED);
         print("x");
         terminal.resetColorAndSGR();
         return;
       }
     }
-    else if (bitBoard.getMove() instanceof MultiJumpMove) {
-      if (((MultiJumpMove) bitBoard.getMove()).takesPiece(index)) {
+    else if (shownBoard.getMove() instanceof MultiJumpMove) {
+      if (((MultiJumpMove) shownBoard.getMove()).takesPiece(index)) {
         terminal.setForegroundColor(TextColor.ANSI.RED);
         print("x");
         terminal.resetColorAndSGR();
@@ -331,9 +341,9 @@ public class TerminalGame {
       }
     }
 
-    if (bitBoard.getMove() != null) {
-      if (bitBoard.getMove().getOrigin() == index) {
-        if (bitBoard.getMove().getColor() == Color.BLACK) {
+    if (shownBoard.getMove() != null) {
+      if (shownBoard.getMove().getOrigin() == index) {
+        if (shownBoard.getMove().getColor() == Color.BLACK) {
           terminal.setForegroundColor(TextColor.ANSI.GREEN);
         }
         else {
@@ -343,8 +353,8 @@ public class TerminalGame {
         terminal.resetColorAndSGR();
       }
       else {
-        if (bitBoard.getMove() instanceof MultiJumpMove) {
-          for (SingleJumpMove singleJumpMove : ((MultiJumpMove) bitBoard.getMove()).getJumps()) {
+        if (shownBoard.getMove() instanceof MultiJumpMove) {
+          for (SingleJumpMove singleJumpMove : ((MultiJumpMove) shownBoard.getMove()).getJumps()) {
             if (singleJumpMove.getDestination() == index) {
               terminal.enableSGR(SGR.UNDERLINE);
             }
