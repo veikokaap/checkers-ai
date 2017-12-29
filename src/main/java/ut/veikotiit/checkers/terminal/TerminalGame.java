@@ -1,6 +1,8 @@
 package ut.veikotiit.checkers.terminal;
 
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +29,8 @@ import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
+import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
+import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
 
 import ut.veikotiit.checkers.Color;
 import ut.veikotiit.checkers.bitboard.BitBoard;
@@ -104,6 +108,7 @@ public class TerminalGame {
         .build();
 
     playerQuestion.showDialog(textGUI);
+    terminal.flush();
   }
 
   public void play() {
@@ -111,6 +116,10 @@ public class TerminalGame {
     defaultTerminalFactory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.newInstance(new Font("Monospaced", Font.PLAIN, 18)));
     try {
       terminal = defaultTerminalFactory.createTerminal();
+      if (terminal instanceof SwingTerminalFrame) {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        ((SwingTerminalFrame) terminal).setSize((int)(screenSize.getWidth() * 0.8), (int)(screenSize.getHeight() * 0.8));
+      }
 //      terminal.enterPrivateMode();
       askToPlay();
       startGame();
