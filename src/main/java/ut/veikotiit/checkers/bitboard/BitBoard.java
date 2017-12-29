@@ -1,22 +1,18 @@
 package ut.veikotiit.checkers.bitboard;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import ut.veikotiit.checkers.Color;
-import ut.veikotiit.checkers.moves.JumpMoveGenerator;
-import ut.veikotiit.checkers.moves.KingMoveGenerator;
 import ut.veikotiit.checkers.moves.Move;
 import ut.veikotiit.checkers.moves.MoveGenerator;
 import ut.veikotiit.checkers.moves.MoveVisitor;
 import ut.veikotiit.checkers.moves.MultiJumpMove;
 import ut.veikotiit.checkers.moves.SimpleMove;
-import ut.veikotiit.checkers.moves.SimpleMoveGenerator;
 import ut.veikotiit.checkers.moves.SingleJumpMove;
+import ut.veikotiit.checkers.scorer.BitBoardScorer;
+import ut.veikotiit.checkers.scorer.DefaultBitBoardScorer;
 
 public class BitBoard {
 
@@ -32,23 +28,33 @@ public class BitBoard {
      40  41  42  43  44
    45  46  47  48  49
    */
-  
+
   private static final BitBoardMover bitBoardMover = new BitBoardMover();
 
   private final long blacks;
   private final long whites;
   private final long kings;
   private final Move move;
+  private final BitBoardScorer scorer;
 
   public static BitBoard create(long blacks, long whites, long kings) {
     return new BitBoard(blacks, whites, kings, null);
   }
 
+  public static BitBoard create(long blacks, long whites, long kings, BitBoardScorer scorer) {
+    return new BitBoard(blacks, whites, kings, null, scorer);
+  }
+
   private BitBoard(long blacks, long whites, long kings, Move move) {
+    this(blacks, whites, kings, move, DefaultBitBoardScorer.getInstance());
+  }
+
+  private BitBoard(long blacks, long whites, long kings, Move move, BitBoardScorer scorer) {
     this.blacks = blacks;
     this.whites = whites;
     this.kings = kings;
     this.move = move;
+    this.scorer = scorer;
   }
 
   public long getBlacks() {
@@ -78,18 +84,13 @@ public class BitBoard {
   public long getPlayerKings(Color color) {
     return color == Color.WHITE ? getWhiteKings() : getBlackKings();
   }
-  
+
   public BitBoard move(Move move) {
     return move.visit(this, bitBoardMover);
   }
 
   public int getScore(Color color) {
-    int score = Long.bitCount(blacks) + 5 * Long.bitCount(getBlackKings()) - Long.bitCount(whites) - 5 * Long.bitCount(getWhiteKings());
-    if (color == Color.WHITE) {
-      score *= -1;
-    }
-
-    return score;
+    return scorer.getScore(color, this);
   }
 
   @Override
@@ -120,9 +121,9 @@ public class BitBoard {
   }
 
   public List<BitBoard> getChildBoards(Color color) {
-      return MoveGenerator.getAllMoves(this, color).stream()
-          .map(this::move)
-          .collect(Collectors.toList());
+    return MoveGenerator.getAllMoves(this, color).stream()
+        .map(this::move)
+        .collect(Collectors.toList());
   }
 
   private static class BitBoardMover implements MoveVisitor<BitBoard> {
