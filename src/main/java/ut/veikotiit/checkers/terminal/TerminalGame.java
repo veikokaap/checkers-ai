@@ -119,7 +119,8 @@ public class TerminalGame {
       while (true) {
         KeyStroke keyStroke = terminal.readInput();
         if (keyStroke.getKeyType().equals(KeyType.Enter)) {
-          break;
+          terminal.close();
+          return;
         }
       }
 //      terminal.exitPrivateMode();
@@ -130,7 +131,7 @@ public class TerminalGame {
   }
 
   private void startGame() throws InterruptedException, IOException {
-    MtdF mtdF = new MtdF(100);
+    MtdF mtdF = new MtdF(50);
     while (true) {
       if (move(mtdF, Color.WHITE, "Black(green) won!")) {
         break;
