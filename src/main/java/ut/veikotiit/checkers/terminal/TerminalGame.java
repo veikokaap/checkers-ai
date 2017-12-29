@@ -1,10 +1,32 @@
 package ut.veikotiit.checkers.terminal;
 
+import java.awt.Font;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import com.googlecode.lanterna.SGR;
+import com.googlecode.lanterna.TerminalPosition;
+import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
+import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
+import com.googlecode.lanterna.gui2.dialogs.ActionListDialog;
+import com.googlecode.lanterna.gui2.dialogs.ActionListDialogBuilder;
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
+import com.googlecode.lanterna.screen.Screen;
+import com.googlecode.lanterna.screen.TerminalScreen;
+import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+import com.googlecode.lanterna.terminal.Terminal;
+import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 
 import ut.veikotiit.checkers.Color;
 import ut.veikotiit.checkers.bitboard.BitBoard;
@@ -16,46 +38,108 @@ import ut.veikotiit.checkers.moves.SingleJumpMove;
 
 public class TerminalGame {
 
-  public static final String ANSI_RESET = "\u001B[0m";
-  public static final String ANSI_RED = "\u001B[31m";
-  public static final String ANSI_GREEN = "\u001B[32m";
-  public static final String ANSI_YELLOW = "\u001B[33m";
-  public static final String ANSI_BLUE = "\u001B[34m";
-  public static final String ANSI_CLEAR_SCREEN = "\033[H\033[2J";
-  private static final String ANSI_BACKGROUND_BLACK = "\u001b[42m";
-  private static final String ANSI_BACKGROUND_WHITE = "\u001b[44m";
-  private static final String ANSI_TEXT_BLACK = "\u001b[30m";
-  private static final String ANSI_TEXT_WHITE = "\u001b[37m";
-  private static final String ANSI_BACKGROUND_YELLOW = "\u001b[43;1m";
-  
-  private static String UNDERLINED_TEXT = "\u001b[4m";
-
   private final HashMap<BitBoard, AtomicInteger> whiteBitboardStateCounters = new HashMap<>();
   private final HashMap<BitBoard, AtomicInteger> blackBitboardStateCounters = new HashMap<>();
 
   private BitBoard bitBoard = BitBoard.create(0b11111111111111111111L, 0b11111111111111111111000000000000000000000000000000L, 0L);
 
-  public void play() {
-    System.out.println("Welcome");
+  private Color player = null;
+  private Terminal terminal;
+  private int selection = -1;
+  private Map<Integer, Move> rowMoveMap = new TreeMap<>();
+
+  public TerminalGame() {
+    DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
+  }
+
+  private void print(String s) {
+    s.chars().forEach(c -> {
+      try {
+        terminal.putCharacter((char) c);
+      }
+      catch (IOException e) {
+        e.printStackTrace();
+      }
+    });
+  }
+
+  private void println() {
     try {
-      startGame();
+      terminal.putCharacter('\n');
     }
-    catch (InterruptedException e) {
+    catch (IOException e) {
       e.printStackTrace();
     }
   }
 
-  private void startGame() throws InterruptedException {
-    MtdF mtdF = new MtdF(1000);
+  private void println(String s) {
+    try {
+      s.chars().forEach(c -> {
+        try {
+          terminal.putCharacter((char) c);
+        }
+        catch (IOException e) {
+          e.printStackTrace();
+        }
+      });
+      terminal.putCharacter('\n');
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void askToPlay() throws IOException {
+    Screen screen = new TerminalScreen(terminal);
+    screen.startScreen();
+
+    // Setup WindowBasedTextGUI for dialogs
+    final WindowBasedTextGUI textGUI = new MultiWindowTextGUI(screen);
+
+    ActionListDialog playerQuestion = new ActionListDialogBuilder()
+        .setTitle("Do you want to play yourself or let AI play?")
+        .addAction("Play with Whites", () -> player = Color.WHITE)
+        .addAction("Play with Blacks", () -> player = Color.BLACK)
+        .addAction("Let AI play", () -> player = null)
+        .build();
+
+    playerQuestion.showDialog(textGUI);
+  }
+
+  public void play() {
+    DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
+    defaultTerminalFactory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.newInstance(new Font("Monospaced", Font.PLAIN, 18)));
+    try {
+      terminal = defaultTerminalFactory.createTerminal();
+//      terminal.enterPrivateMode();
+      askToPlay();
+      startGame();
+      println("Press Enter key to exit");
+      terminal.flush();
+      while (true) {
+        KeyStroke keyStroke = terminal.readInput();
+        if (keyStroke.getKeyType().equals(KeyType.Enter)) {
+          break;
+        }
+      }
+//      terminal.exitPrivateMode();
+    }
+    catch (InterruptedException | IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void startGame() throws InterruptedException, IOException {
+    MtdF mtdF = new MtdF(100);
     while (true) {
-      if (move(mtdF, Color.WHITE, "No legal moves for white")) {
+      if (move(mtdF, Color.WHITE, "Black(green) won!")) {
         break;
       }
       if (sameBoardThirdTime(whiteBitboardStateCounters)) {
         break;
       }
 
-      if (move(mtdF, Color.BLACK, "No legal moves for black")) {
+      if (move(mtdF, Color.BLACK, "White(blue) won!")) {
         break;
       }
       if (sameBoardThirdTime(blackBitboardStateCounters)) {
@@ -70,30 +154,82 @@ public class TerminalGame {
     }
     int counter = boardStateCounters.get(bitBoard).incrementAndGet();
     if (counter >= 3) {
-      System.out.println("DRAW!");
+      println("DRAW!");
       return true;
     }
 
     return false;
   }
 
-  private boolean move(MtdF mtdF, Color color, String gameOverMessage) {
-    print();
-    Move whiteMove = mtdF.search(bitBoard, color, 100);
-    if (whiteMove == null) {
-      System.out.println(gameOverMessage);
-      return true;
+  private boolean move(MtdF mtdF, Color color, String gameOverMessage) throws IOException {
+    printBoard(color);
+    if (color == player) {
+      List<BitBoard> childBoards = bitBoard.getChildBoards(color);
+      if (childBoards.isEmpty()) {
+        println(gameOverMessage);
+        terminal.flush();
+        return true;
+      }
+
+      while (true) {
+        KeyStroke keyStroke = terminal.readInput();
+        switch (keyStroke.getKeyType()) {
+          case ArrowUp:
+            selectionUp();
+            printBoard(color);
+            break;
+          case ArrowDown:
+            selectionDown();
+            printBoard(color);
+            break;
+          case Enter:
+            TerminalPosition cursorPosition = terminal.getCursorPosition();
+            if (rowMoveMap.containsKey(cursorPosition.getRow())) {
+              bitBoard = bitBoard.move(rowMoveMap.get(cursorPosition.getRow()));
+              rowMoveMap.clear();
+              selection = -1;
+              return false;
+            }
+        }
+      }
     }
-    bitBoard = bitBoard.move(whiteMove);
-    return false;
+    else {
+      Move whiteMove = mtdF.search(bitBoard, color, 100);
+      if (whiteMove == null) {
+        println(gameOverMessage);
+        terminal.flush();
+        return true;
+      }
+      bitBoard = bitBoard.move(whiteMove);
+      return false;
+    }
   }
 
-  private void clearScreen() {
-    System.out.print(ANSI_CLEAR_SCREEN);
-    System.out.flush();
+
+  private void selectionUp() {
+    Optional<Integer> down = rowMoveMap.keySet().stream()
+        .sorted(Collections.reverseOrder())
+        .filter(i -> i < selection)
+        .findFirst();
+
+    down.ifPresent(i -> selection = i);
   }
 
-  private void print() {
+  private void selectionDown() {
+    Optional<Integer> down = rowMoveMap.keySet().stream()
+        .sorted()
+        .filter(i -> i > selection)
+        .findFirst();
+    
+    down.ifPresent(i -> selection = i);
+  }
+
+  private void clearScreen() throws IOException {
+    terminal.clearScreen();
+    terminal.setCursorPosition(0, 0);
+  }
+
+  private void printBoard(Color color) throws IOException {
     List<Integer> blacks = Arrays.stream(BitUtil.longToBits(bitBoard.getBlacks())).boxed().collect(Collectors.toList());
     List<Integer> blackKings = Arrays.stream(BitUtil.longToBits(bitBoard.getBlackKings())).boxed().collect(Collectors.toList());
     List<Integer> whites = Arrays.stream(BitUtil.longToBits(bitBoard.getWhites())).boxed().collect(Collectors.toList());
@@ -101,68 +237,96 @@ public class TerminalGame {
 
     clearScreen();
 
-    System.out.println("+------------------------------+");
+    println("+------------------------------+");
     for (int i = 0; i < 10; i++) {
-      System.out.print("|");
+      print("|");
       for (int j = 0; j < 10; j++) {
-        System.out.print(" ");
+        print(" ");
         if ((i + j) % 2 == 1) {
           int index = (5 * i) + (j / 2);
           if (bitBoard.getMove() != null) {
             if (bitBoard.getMove().getDestination() == index) {
-              System.out.print(UNDERLINED_TEXT);
+              terminal.enableSGR(SGR.UNDERLINE);
             }
           }
           if (blackKings.contains(index)) {
-            System.out.print(ANSI_GREEN + "\u2605" + ANSI_RESET);
+            terminal.setForegroundColor(TextColor.ANSI.GREEN);
+            print("\u2605");
+            terminal.resetColorAndSGR();
           }
           else if (blacks.contains(index)) {
-            System.out.print(ANSI_GREEN + "\u25CF" + ANSI_RESET);
+            terminal.setForegroundColor(TextColor.ANSI.GREEN);
+            print("\u25CF");
+            terminal.resetColorAndSGR();
           }
           else if (whiteKings.contains(index)) {
-            System.out.print(ANSI_BLUE + "\u2605" + ANSI_RESET);
+            terminal.setForegroundColor(TextColor.ANSI.BLUE);
+            print("\u2605");
+            terminal.resetColorAndSGR();
           }
           else if (whites.contains(index)) {
-            System.out.print(ANSI_BLUE + "\u25CF" + ANSI_RESET);
+            terminal.setForegroundColor(TextColor.ANSI.BLUE);
+            print("\u25CF");
+            terminal.resetColorAndSGR();
           }
           else {
             printEmpty(index);
           }
         }
         else {
-          System.out.print(" ");
+          print(" ");
         }
-        System.out.print(" ");
+        print(" ");
       }
-      System.out.println("|");
+      println("|");
     }
-    System.out.println("+------------------------------+");
-    printMove();
-    System.out.println();
+    println("+------------------------------+");
+    println();
+
+    if (color == player) {
+      List<BitBoard> childBoards = bitBoard.getChildBoards(color);
+
+      if (selection == -1) {
+        selection = terminal.getCursorPosition().getRow();
+      }
+
+      for (BitBoard childBoard : childBoards) {
+        rowMoveMap.put(terminal.getCursorPosition().getRow(), childBoard.getMove());
+        println(" " + childBoard.getMove());
+      }
+
+      terminal.setCursorPosition(0, selection);
+      print(">");
+    }
+    terminal.flush();
   }
 
   private void printMove() {
     if (bitBoard.getMove() != null) {
       if (bitBoard.getMove() instanceof MultiJumpMove && ((MultiJumpMove) bitBoard.getMove()).getJumps().size() == 1) {
-        System.out.println("Move: " + ((MultiJumpMove) bitBoard.getMove()).getJumps().get(0));
+        println("Move: " + ((MultiJumpMove) bitBoard.getMove()).getJumps().get(0));
       }
       else {
-        System.out.println("Move: " + bitBoard.getMove());
+        println("Move: " + bitBoard.getMove());
       }
-      System.out.println("Score (" + bitBoard.getMove().getColor() + "): " + bitBoard.getScore(bitBoard.getMove().getColor()));
+      println("Score (" + bitBoard.getMove().getColor() + "): " + bitBoard.getScore(bitBoard.getMove().getColor()));
     }
   }
 
-  private void printEmpty(int index) {
+  private void printEmpty(int index) throws IOException {
     if (bitBoard.getMove() instanceof SingleJumpMove) {
       if (((SingleJumpMove) bitBoard.getMove()).getPieceTaken() == index) {
-        System.out.print(ANSI_RED + "x" + ANSI_RESET);
+        terminal.setForegroundColor(TextColor.ANSI.RED);
+        print("x");
+        terminal.resetColorAndSGR();
         return;
       }
     }
     else if (bitBoard.getMove() instanceof MultiJumpMove) {
       if (((MultiJumpMove) bitBoard.getMove()).takesPiece(index)) {
-        System.out.print(ANSI_RED + "x" + ANSI_RESET);
+        terminal.setForegroundColor(TextColor.ANSI.RED);
+        print("x");
+        terminal.resetColorAndSGR();
         return;
       }
     }
@@ -170,24 +334,29 @@ public class TerminalGame {
     if (bitBoard.getMove() != null) {
       if (bitBoard.getMove().getOrigin() == index) {
         if (bitBoard.getMove().getColor() == Color.BLACK) {
-          System.out.print(ANSI_GREEN);
-        } else {
-          System.out.print(ANSI_BLUE);
+          terminal.setForegroundColor(TextColor.ANSI.GREEN);
         }
-        System.out.print("\u25CC" + ANSI_RESET);
-      }else {
+        else {
+          terminal.setForegroundColor(TextColor.ANSI.BLUE);
+        }
+        print("\u25CC");
+        terminal.resetColorAndSGR();
+      }
+      else {
         if (bitBoard.getMove() instanceof MultiJumpMove) {
           for (SingleJumpMove singleJumpMove : ((MultiJumpMove) bitBoard.getMove()).getJumps()) {
             if (singleJumpMove.getDestination() == index) {
-              System.out.print(UNDERLINED_TEXT);
+              terminal.enableSGR(SGR.UNDERLINE);
             }
           }
         }
-        System.out.print("·" + ANSI_RESET);
+        print("·");
+        terminal.resetColorAndSGR();
       }
     }
     else {
-      System.out.print("·" + ANSI_RESET);
+      print("·");
+      terminal.resetColorAndSGR();
     }
   }
 }
