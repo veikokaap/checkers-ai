@@ -55,9 +55,13 @@ public class MultiJumpMove implements Move {
 
   @Override
   public String toString() {
-    return "MultiJumpMove{" +
-        "jumps=" + jumps +
-        '}';
+    if (getJumps().size() == 1) {
+      return getJumps().get(0).toString();
+    } else {
+      return "MultiJumpMove{" +
+          "jumps=" + jumps +
+          '}';
+    }
   }
 
   @Override

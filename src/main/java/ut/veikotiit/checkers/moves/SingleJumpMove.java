@@ -63,7 +63,8 @@ public class SingleJumpMove implements Move {
   public String toString() {
     return "SingleJumpMove{" +
         "color=" + color +
-        ", simpleMove=" + simpleMove +
+        ", origin=" + getOrigin() +
+        ", destination=" + getDestination() +
         ", pieceTaken=" + pieceTaken +
         '}';
   }

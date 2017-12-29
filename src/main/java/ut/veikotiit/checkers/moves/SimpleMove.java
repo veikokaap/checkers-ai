@@ -54,7 +54,7 @@ public class SimpleMove implements Move {
 
   @Override
   public String toString() {
-    return "pkg.moves.SimpleMove{" +
+    return "SimpleMove{" +
         "origin=" + origin +
         ", destination=" + destination +
         ", color=" + color +
