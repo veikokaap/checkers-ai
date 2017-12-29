@@ -1,17 +1,16 @@
-package ut.veikotiit.checkers.terminal;
+package ut.veikotiit.checkers.game;
 
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -30,7 +29,6 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
-import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
 
 import ut.veikotiit.checkers.Color;
 import ut.veikotiit.checkers.bitboard.BitBoard;
@@ -113,9 +111,10 @@ public class TerminalGame implements Game {
   }
 
   @Override
-  public void play() {
+  public GameResult play() {
     DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
     defaultTerminalFactory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.newInstance(new Font("Monospaced", Font.PLAIN, 18)));
+    GameResult result;
     try {
       terminal = defaultTerminalFactory.createTerminal();
       if (terminal instanceof SwingTerminalFrame) {
@@ -124,38 +123,40 @@ public class TerminalGame implements Game {
       }
 //      terminal.enterPrivateMode();
       askToPlay();
-      startGame();
+      result = startGame();
       println("Press Enter key to exit");
       terminal.flush();
       while (true) {
         KeyStroke keyStroke = terminal.readInput();
         if (keyStroke.getKeyType().equals(KeyType.Enter)) {
           terminal.close();
-          return;
+          return result;
         }
       }
 //      terminal.exitPrivateMode();
-    }
-    catch (InterruptedException | IOException e) {
-      e.printStackTrace();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return null;
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
     }
   }
 
-  private void startGame() throws InterruptedException, IOException {
+  private GameResult startGame() throws InterruptedException, IOException {
     MtdF mtdF = new MtdF(50);
     while (true) {
       if (move(mtdF, Color.WHITE, "Black(green) won!")) {
-        break;
+        return GameResult.BLACK_WIN;
       }
       if (sameBoardThirdTime(whiteBitboardStateCounters)) {
-        break;
+        return GameResult.DRAW;
       }
 
       if (move(mtdF, Color.BLACK, "White(blue) won!")) {
-        break;
+        return GameResult.WHITE_WIN;
       }
       if (sameBoardThirdTime(blackBitboardStateCounters)) {
-        break;
+        return GameResult.DRAW;
       }
     }
   }
