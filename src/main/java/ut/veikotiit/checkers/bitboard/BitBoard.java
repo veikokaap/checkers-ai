@@ -35,26 +35,16 @@ public class BitBoard {
   private final long whites;
   private final long kings;
   private final Move move;
-  private final BitBoardScorer scorer;
 
   public static BitBoard create(long blacks, long whites, long kings) {
     return new BitBoard(blacks, whites, kings, null);
   }
 
-  public static BitBoard create(long blacks, long whites, long kings, BitBoardScorer scorer) {
-    return new BitBoard(blacks, whites, kings, null, scorer);
-  }
-
   private BitBoard(long blacks, long whites, long kings, Move move) {
-    this(blacks, whites, kings, move, DefaultBitBoardScorer.getInstance());
-  }
-
-  private BitBoard(long blacks, long whites, long kings, Move move, BitBoardScorer scorer) {
     this.blacks = blacks;
     this.whites = whites;
     this.kings = kings;
     this.move = move;
-    this.scorer = scorer;
   }
 
   public long getBlacks() {
@@ -87,10 +77,6 @@ public class BitBoard {
 
   public BitBoard move(Move move) {
     return move.visit(this, bitBoardMover);
-  }
-
-  public int getScore(Color color) {
-    return scorer.getScore(color, this);
   }
 
   @Override

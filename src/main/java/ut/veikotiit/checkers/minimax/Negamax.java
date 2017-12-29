@@ -4,6 +4,7 @@ import java.util.List;
 
 import ut.veikotiit.checkers.Color;
 import ut.veikotiit.checkers.bitboard.BitBoard;
+import ut.veikotiit.checkers.scorer.BitBoardScorer;
 import ut.veikotiit.checkers.transposition.CachedValue;
 import ut.veikotiit.checkers.transposition.TranspositionTable;
 
@@ -11,10 +12,12 @@ public class Negamax {
   
   private final long startTime;
   private final long timeGiven;
+  private final BitBoardScorer scorer;
 
-  public Negamax(long startTime, long timeGiven) {
+  public Negamax(long startTime, long timeGiven, BitBoardScorer scorer) {
     this.startTime = startTime;
     this.timeGiven = timeGiven;
+    this.scorer = scorer;
   }
 
   public Result recursive(BitBoard board, Color color, int alpha, int beta, int depth, TranspositionTable transpositionTable) {
@@ -46,7 +49,7 @@ public class Negamax {
     }
 
     if (depth <= 0) {
-      int score = board.getScore(color);
+      int score = scorer.getScore(color, board);
       transpositionTable.put(board, createNewCachedValue(alpha, beta, depth, score));
       return new Result(score, null);
     }

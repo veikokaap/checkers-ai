@@ -39,8 +39,9 @@ import ut.veikotiit.checkers.minimax.MtdF;
 import ut.veikotiit.checkers.moves.Move;
 import ut.veikotiit.checkers.moves.MultiJumpMove;
 import ut.veikotiit.checkers.moves.SingleJumpMove;
+import ut.veikotiit.checkers.scorer.DefaultBitBoardScorer;
 
-public class TerminalGame {
+public class TerminalGame implements Game {
 
   private final HashMap<BitBoard, AtomicInteger> whiteBitboardStateCounters = new HashMap<>();
   private final HashMap<BitBoard, AtomicInteger> blackBitboardStateCounters = new HashMap<>();
@@ -111,6 +112,7 @@ public class TerminalGame {
     terminal.flush();
   }
 
+  @Override
   public void play() {
     DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
     defaultTerminalFactory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.newInstance(new Font("Monospaced", Font.PLAIN, 18)));
@@ -204,7 +206,7 @@ public class TerminalGame {
       }
     }
     else {
-      Move whiteMove = mtdF.search(bitBoard, color, 100);
+      Move whiteMove = mtdF.search(bitBoard, color, 100, DefaultBitBoardScorer.getInstance());
       if (whiteMove == null) {
         println(gameOverMessage);
         terminal.flush();
@@ -329,7 +331,7 @@ public class TerminalGame {
       else {
         println("Move: " + bitBoard.getMove());
       }
-      println("Score (" + bitBoard.getMove().getColor() + "): " + bitBoard.getScore(bitBoard.getMove().getColor()));
+//      println("Score (" + bitBoard.getMove().getColor() + "): " + bitBoard.getScore(bitBoard.getMove().getColor()));
     }
   }
 
