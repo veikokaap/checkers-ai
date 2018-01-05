@@ -86,17 +86,27 @@ public class BitBoard {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof BitBoard)) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
+
     BitBoard bitBoard = (BitBoard) o;
-    return getBlacks() == bitBoard.getBlacks() &&
-        getWhites() == bitBoard.getWhites();
+
+    if (blacks != bitBoard.blacks) {
+      return false;
+    }
+    if (whites != bitBoard.whites) {
+      return false;
+    }
+    return kings == bitBoard.kings;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getBlacks(), getWhites());
+    int result = (int) (blacks ^ (blacks >>> 32));
+    result = 31 * result + (int) (whites ^ (whites >>> 32));
+    result = 31 * result + (int) (kings ^ (kings >>> 32));
+    return result;
   }
 
   @Override
