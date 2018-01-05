@@ -20,8 +20,8 @@ public class Negamax {
     this.scorer = scorer;
   }
 
-  public Result recursive(BitBoard board, Color color, int alpha, int beta, int depth, TranspositionTable transpositionTable) {
-    if (System.currentTimeMillis() - startTime >= timeGiven) {
+  public Result recursive(BitBoard board, Color color, int alpha, int beta, int depth, TranspositionTable transpositionTable, boolean mustFinish) {
+    if (!mustFinish && System.currentTimeMillis() - startTime >= timeGiven) {
       return null; // Time exceeded
     }
     
@@ -64,7 +64,7 @@ public class Negamax {
     int bestValue = -1000000;
     BitBoard bestChild = null;
     for (BitBoard child : childBoards) {
-      Result result = recursive(child, color.getOpponent(), -beta, -alpha, depth - 1, transpositionTable);
+      Result result = recursive(child, color.getOpponent(), -beta, -alpha, depth - 1, transpositionTable, mustFinish);
       
       if (result == null) { 
         return null; // time exceeded
