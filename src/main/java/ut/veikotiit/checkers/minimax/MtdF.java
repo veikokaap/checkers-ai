@@ -46,12 +46,12 @@ public class MtdF {
       return null;
     }
     
-    return bestResult.getBoard().getMove();
+    return bestResult.getBoard().getPreviousMove();
   }
 
   private Negamax.Result internal(BitBoard board, Color color, int depth,
-                                  TranspositionTable transpositionTable, int firstGuess, BitBoardScorer scorer, boolean mustFinish) {
-    Negamax negamax = new Negamax(startTime, timeGiven, scorer);
+                                  TranspositionTable transpositionTable, int firstGuess, BitBoardScorer scorer, boolean firstRun) {
+    Negamax negamax = new Negamax(startTime, timeGiven, scorer, transpositionTable, !firstRun);
 
     int upperBound = Integer.MAX_VALUE;
     int lowerBound = Integer.MIN_VALUE;
@@ -59,7 +59,7 @@ public class MtdF {
     Negamax.Result bestResult = null;
     while (lowerBound < upperBound) {
       int beta = Math.max(firstGuess, lowerBound + 1);
-      Negamax.Result result = negamax.recursive(board, color, beta - 1, beta, depth, transpositionTable, mustFinish);
+      Negamax.Result result = negamax.recursive(board, color, beta - 1, beta, depth);
       
       if (result == null) {
         return null; // Time exceeded

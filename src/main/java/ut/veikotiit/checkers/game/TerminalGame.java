@@ -177,7 +177,7 @@ public class TerminalGame implements Game {
   private boolean move(MtdF mtdF, Color color, String gameOverMessage) throws IOException {
     printBoard(color);
     if (color == player) {
-      List<BitBoard> childBoards = bitBoard.getChildBoards(color);
+      List<BitBoard> childBoards = bitBoard.getChildBoards();
       if (childBoards.isEmpty()) {
         println(gameOverMessage);
         terminal.flush();
@@ -267,8 +267,8 @@ public class TerminalGame implements Game {
         print(" ");
         if ((i + j) % 2 == 1) {
           int index = (5 * i) + (j / 2);
-          if (shownBoard.getMove() != null) {
-            if (shownBoard.getMove().getDestination() == index) {
+          if (shownBoard.getPreviousMove() != null) {
+            if (shownBoard.getPreviousMove().getDestination() == index) {
               terminal.enableSGR(SGR.UNDERLINE);
             }
           }
@@ -307,15 +307,15 @@ public class TerminalGame implements Game {
     println();
 
     if (color == player) {
-      List<BitBoard> childBoards = bitBoard.getChildBoards(color);
+      List<BitBoard> childBoards = bitBoard.getChildBoards();
 
       if (selection == -1) {
         selection = terminal.getCursorPosition().getRow() - 1;
       }
 
       for (BitBoard childBoard : childBoards) {
-        rowMoveMap.put(terminal.getCursorPosition().getRow(), childBoard.getMove());
-        println(" " + childBoard.getMove());
+        rowMoveMap.put(terminal.getCursorPosition().getRow(), childBoard.getPreviousMove());
+        println(" " + childBoard.getPreviousMove());
       }
 
       terminal.setCursorPosition(0, selection);
@@ -325,28 +325,28 @@ public class TerminalGame implements Game {
   }
 
   private void printMove() {
-    if (bitBoard.getMove() != null) {
-      if (bitBoard.getMove() instanceof MultiJumpMove && ((MultiJumpMove) bitBoard.getMove()).getJumps().size() == 1) {
-        println("Move: " + ((MultiJumpMove) bitBoard.getMove()).getJumps().get(0));
+    if (bitBoard.getPreviousMove() != null) {
+      if (bitBoard.getPreviousMove() instanceof MultiJumpMove && ((MultiJumpMove) bitBoard.getPreviousMove()).getJumps().size() == 1) {
+        println("Move: " + ((MultiJumpMove) bitBoard.getPreviousMove()).getJumps().get(0));
       }
       else {
-        println("Move: " + bitBoard.getMove());
+        println("Move: " + bitBoard.getPreviousMove());
       }
-//      println("Score (" + bitBoard.getMove().getColor() + "): " + bitBoard.getScore(bitBoard.getMove().getColor()));
+//      println("Score (" + bitBoard.getPreviousMove().getColor() + "): " + bitBoard.getScore(bitBoard.getPreviousMove().getColor()));
     }
   }
 
   private void printEmpty(BitBoard shownBoard, int index) throws IOException {
-    if (shownBoard.getMove() instanceof SingleJumpMove) {
-      if (((SingleJumpMove) shownBoard.getMove()).getPieceTaken() == index) {
+    if (shownBoard.getPreviousMove() instanceof SingleJumpMove) {
+      if (((SingleJumpMove) shownBoard.getPreviousMove()).getPieceTaken() == index) {
         terminal.setForegroundColor(TextColor.ANSI.RED);
         print("x");
         terminal.resetColorAndSGR();
         return;
       }
     }
-    else if (shownBoard.getMove() instanceof MultiJumpMove) {
-      if (((MultiJumpMove) shownBoard.getMove()).takesPiece(index)) {
+    else if (shownBoard.getPreviousMove() instanceof MultiJumpMove) {
+      if (((MultiJumpMove) shownBoard.getPreviousMove()).takesPiece(index)) {
         terminal.setForegroundColor(TextColor.ANSI.RED);
         print("x");
         terminal.resetColorAndSGR();
@@ -354,9 +354,9 @@ public class TerminalGame implements Game {
       }
     }
 
-    if (shownBoard.getMove() != null) {
-      if (shownBoard.getMove().getOrigin() == index) {
-        if (shownBoard.getMove().getColor() == Color.BLACK) {
+    if (shownBoard.getPreviousMove() != null) {
+      if (shownBoard.getPreviousMove().getOrigin() == index) {
+        if (shownBoard.getPreviousMove().getColor() == Color.BLACK) {
           terminal.setForegroundColor(TextColor.ANSI.GREEN);
         }
         else {
@@ -366,8 +366,8 @@ public class TerminalGame implements Game {
         terminal.resetColorAndSGR();
       }
       else {
-        if (shownBoard.getMove() instanceof MultiJumpMove) {
-          for (SingleJumpMove singleJumpMove : ((MultiJumpMove) shownBoard.getMove()).getJumps()) {
+        if (shownBoard.getPreviousMove() instanceof MultiJumpMove) {
+          for (SingleJumpMove singleJumpMove : ((MultiJumpMove) shownBoard.getPreviousMove()).getJumps()) {
             if (singleJumpMove.getDestination() == index) {
               terminal.enableSGR(SGR.UNDERLINE);
             }

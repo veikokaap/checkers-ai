@@ -13,16 +13,22 @@ public class Negamax {
   private final long startTime;
   private final long timeGiven;
   private final BitBoardScorer scorer;
+  private final TranspositionTable transpositionTable;
+  private final boolean checkTimeLimit;
 
-  public Negamax(long startTime, long timeGiven, BitBoardScorer scorer) {
+  public Negamax(long startTime, long timeGiven, BitBoardScorer scorer, TranspositionTable transpositionTable, boolean checkTimeLimit) {
     this.startTime = startTime;
     this.timeGiven = timeGiven;
     this.scorer = scorer;
+    this.transpositionTable = transpositionTable;
+    this.checkTimeLimit = checkTimeLimit;
   }
 
-  public Result recursive(BitBoard board, Color color, int alpha, int beta, int depth, TranspositionTable transpositionTable, boolean mustFinish) {
-    if (!mustFinish && System.currentTimeMillis() - startTime >= timeGiven) {
-      return null; // Time exceeded
+  public Result recursive(BitBoard board, Color color, int alpha, int beta, int depth) {
+    if (checkTimeLimit) {
+      if (System.currentTimeMillis() - startTime >= timeGiven) {
+        return null; // Time exceeded
+      }
     }
     
     int originalAlpha = alpha;
@@ -54,7 +60,7 @@ public class Negamax {
       return new Result(score, null);
     }
     
-    List<BitBoard> childBoards = board.getChildBoards(color);
+    List<BitBoard> childBoards = board.getChildBoards();
     if (childBoards.isEmpty()) {
       int score = -10000 - depth; // Defeat
       transpositionTable.put(board, createNewCachedValue(alpha, beta, depth, score));
@@ -64,7 +70,7 @@ public class Negamax {
     int bestValue = -1000000;
     BitBoard bestChild = null;
     for (BitBoard child : childBoards) {
-      Result result = recursive(child, color.getOpponent(), -beta, -alpha, depth - 1, transpositionTable, mustFinish);
+      Result result = recursive(child, color.getOpponent(), -beta, -alpha, depth - 1);
       
       if (result == null) { 
         return null; // time exceeded

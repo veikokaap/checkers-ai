@@ -30,21 +30,23 @@ public class BitBoard {
    */
 
   private static final BitBoardMover bitBoardMover = new BitBoardMover();
+  private static final Color STARTING_COLOR = Color.WHITE;
 
   private final long blacks;
   private final long whites;
   private final long kings;
-  private final Move move;
+  private final Move previousMove;
+  private List<BitBoard> childBoards;
 
   public static BitBoard create(long blacks, long whites, long kings) {
     return new BitBoard(blacks, whites, kings, null);
   }
 
-  private BitBoard(long blacks, long whites, long kings, Move move) {
+  private BitBoard(long blacks, long whites, long kings, Move previousMove) {
     this.blacks = blacks;
     this.whites = whites;
     this.kings = kings;
-    this.move = move;
+    this.previousMove = previousMove;
   }
 
   public long getBlacks() {
@@ -63,8 +65,8 @@ public class BitBoard {
     return blacks & kings;
   }
 
-  public Move getMove() {
-    return move;
+  public Move getPreviousMove() {
+    return previousMove;
   }
 
   public long getPlayerPieces(Color color) {
@@ -102,14 +104,26 @@ public class BitBoard {
     return "BitBoard{" +
         "blacks=" + blacks +
         ", whites=" + whites +
-        ", move=" + move +
+        ", previousMove=" + previousMove +
         '}';
   }
 
-  public List<BitBoard> getChildBoards(Color color) {
-    return MoveGenerator.getAllMoves(this, color).stream()
-        .map(this::move)
-        .collect(Collectors.toList());
+  private Color getNextColor() {
+    if (previousMove == null) {
+      return STARTING_COLOR;
+    } else {
+      return previousMove.getColor().getOpponent();
+    }
+  }
+
+  public List<BitBoard> getChildBoards() {
+    if (childBoards == null) {
+      childBoards = MoveGenerator.getAllMoves(this, getNextColor()).stream()
+          .map(this::move)
+          .collect(Collectors.toList());
+    }
+
+    return childBoards;
   }
 
   private static class BitBoardMover implements MoveVisitor<BitBoard> {
