@@ -31,10 +31,10 @@ public class AutomatedNoUIGame implements Game {
 
   @Override
   public GameResult play() {
-    MtdF mtdF = new MtdF(50);
+    MtdF mtdF = new MtdF(10);
     try {
       while (true) {
-        if (move(mtdF, Color.WHITE)) {
+        if (move(mtdF)) {
           System.out.println("White has no more moves! Black(green) won!");
           return GameResult.BLACK_WIN;
         }
@@ -43,7 +43,7 @@ public class AutomatedNoUIGame implements Game {
           return GameResult.DRAW;
         }
 
-        if (move(mtdF, Color.BLACK)) {
+        if (move(mtdF)) {
           System.out.println("Black has no more moves! White(blue) won!");
           return GameResult.WHITE_WIN;
         }
@@ -64,8 +64,8 @@ public class AutomatedNoUIGame implements Game {
     return boardStateCounters.get(bitBoard).incrementAndGet() >= 3;
   }
 
-  private boolean move(MtdF mtdF, Color color) throws IOException {
-    Move move = mtdF.search(bitBoard, color, 100, color == Color.WHITE ? whiteScorer : blackScorer);
+  private boolean move(MtdF mtdF) throws IOException {
+    Move move = mtdF.search(bitBoard, 100, bitBoard.getNextColor() == Color.WHITE ? whiteScorer : blackScorer);
     if (move == null) {
       return true;
     }

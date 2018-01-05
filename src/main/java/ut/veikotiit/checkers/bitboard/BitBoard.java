@@ -30,7 +30,7 @@ public class BitBoard {
    */
 
   private static final BitBoardMover bitBoardMover = new BitBoardMover();
-  private static final Color STARTING_COLOR = Color.WHITE;
+  private static final Color STARTING_COLOR = Color.BLACK;
 
   private final long blacks;
   private final long whites;
@@ -118,7 +118,7 @@ public class BitBoard {
         '}';
   }
 
-  private Color getNextColor() {
+  public Color getNextColor() {
     if (previousMove == null) {
       return STARTING_COLOR;
     } else {

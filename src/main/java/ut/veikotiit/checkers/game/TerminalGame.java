@@ -143,7 +143,7 @@ public class TerminalGame implements Game {
   }
 
   private GameResult startGame() throws InterruptedException, IOException {
-    MtdF mtdF = new MtdF(50);
+    MtdF mtdF = new MtdF(10);
     while (true) {
       if (move(mtdF, Color.WHITE, "Black(green) won!")) {
         return GameResult.BLACK_WIN;
@@ -207,13 +207,13 @@ public class TerminalGame implements Game {
       }
     }
     else {
-      Move whiteMove = mtdF.search(bitBoard, color, 100, DefaultBitBoardScorer.getInstance());
-      if (whiteMove == null) {
+      Move move = mtdF.search(bitBoard, 100, DefaultBitBoardScorer.getInstance());
+      if (move == null) {
         println(gameOverMessage);
         terminal.flush();
         return true;
       }
-      bitBoard = bitBoard.move(whiteMove);
+      bitBoard = bitBoard.move(move);
       return false;
     }
   }

@@ -24,7 +24,7 @@ public class Negamax {
     this.checkTimeLimit = checkTimeLimit;
   }
 
-  public Result recursive(BitBoard board, Color color, int alpha, int beta, int depth) {
+  public Result recursive(BitBoard board, int alpha, int beta, int depth) {
     if (checkTimeLimit) {
       if (System.currentTimeMillis() - startTime >= timeGiven) {
         return null; // Time exceeded
@@ -55,7 +55,7 @@ public class Negamax {
     }
 
     if (depth <= 0) {
-      int score = scorer.getScore(color, board);
+      int score = scorer.getScore(board);
       transpositionTable.put(board, createNewCachedValue(alpha, beta, depth, score));
       return new Result(score, null);
     }
@@ -70,7 +70,7 @@ public class Negamax {
     int bestValue = -1000000;
     BitBoard bestChild = null;
     for (BitBoard child : childBoards) {
-      Result result = recursive(child, color.getOpponent(), -beta, -alpha, depth - 1);
+      Result result = recursive(child, -beta, -alpha, depth - 1);
       
       if (result == null) { 
         return null; // time exceeded
