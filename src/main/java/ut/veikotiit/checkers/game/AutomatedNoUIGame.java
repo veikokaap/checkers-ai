@@ -35,17 +35,18 @@ public class AutomatedNoUIGame implements Game {
     try {
       while (true) {
         if (move(mtdF)) {
-          System.out.println("White has no more moves! Black(green) won!");
-          return GameResult.BLACK_WIN;
+          if (bitBoard.getNextColor() == Color.WHITE) {
+            System.out.println("White has no more moves! Black(green) won!");
+            return GameResult.BLACK_WIN;
+          }
+          else {
+            System.out.println("Black has no more moves! White(blue) won!");
+            return GameResult.WHITE_WIN;
+          }
         }
         if (sameBoardThirdTime(whiteBitboardStateCounters)) {
           System.out.println("White has same board thrice! Game draw!");
           return GameResult.DRAW;
-        }
-
-        if (move(mtdF)) {
-          System.out.println("Black has no more moves! White(blue) won!");
-          return GameResult.WHITE_WIN;
         }
         if (sameBoardThirdTime(blackBitboardStateCounters)) {
           System.out.println("Black has same board thrice! Game draw!");

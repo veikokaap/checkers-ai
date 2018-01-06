@@ -145,15 +145,17 @@ public class TerminalGame implements Game {
   private GameResult startGame() throws InterruptedException, IOException {
     MtdF mtdF = new MtdF(10);
     while (true) {
-      if (move(mtdF, Color.WHITE, "Black(green) won!")) {
-        return GameResult.BLACK_WIN;
+      if (move(mtdF)) {
+        if (bitBoard.getNextColor() == Color.WHITE) {
+          System.out.println("Black wins!");
+          return GameResult.BLACK_WIN;
+        } else {
+          System.out.println("White wins!");
+          return GameResult.WHITE_WIN;
+        }
       }
       if (sameBoardThirdTime(whiteBitboardStateCounters)) {
         return GameResult.DRAW;
-      }
-
-      if (move(mtdF, Color.BLACK, "White(blue) won!")) {
-        return GameResult.WHITE_WIN;
       }
       if (sameBoardThirdTime(blackBitboardStateCounters)) {
         return GameResult.DRAW;
@@ -174,12 +176,11 @@ public class TerminalGame implements Game {
     return false;
   }
 
-  private boolean move(MtdF mtdF, Color color, String gameOverMessage) throws IOException {
-    printBoard(color);
-    if (color == player) {
+  private boolean move(MtdF mtdF) throws IOException {
+    printBoard();
+    if (bitBoard.getNextColor() == player) {
       List<BitBoard> childBoards = bitBoard.getChildBoards();
       if (childBoards.isEmpty()) {
-        println(gameOverMessage);
         terminal.flush();
         return true;
       }
@@ -189,11 +190,11 @@ public class TerminalGame implements Game {
         switch (keyStroke.getKeyType()) {
           case ArrowUp:
             selectionUp();
-            printBoard(color);
+            printBoard();
             break;
           case ArrowDown:
             selectionDown();
-            printBoard(color);
+            printBoard();
             break;
           case Enter:
             TerminalPosition cursorPosition = terminal.getCursorPosition();
@@ -209,7 +210,6 @@ public class TerminalGame implements Game {
     else {
       Move move = mtdF.search(bitBoard, 100, DefaultBitBoardScorer.getInstance());
       if (move == null) {
-        println(gameOverMessage);
         terminal.flush();
         return true;
       }
@@ -246,10 +246,10 @@ public class TerminalGame implements Game {
     terminal.setCursorPosition(0, 0);
   }
 
-  private void printBoard(Color color) throws IOException {
+  private void printBoard() throws IOException {
     BitBoard shownBoard = bitBoard;
 
-    if (color == player && rowMoveMap.containsKey(selection)) {
+    if (bitBoard.getNextColor() == player && rowMoveMap.containsKey(selection)) {
       shownBoard = bitBoard.move(rowMoveMap.get(selection));
     }
     
@@ -306,7 +306,7 @@ public class TerminalGame implements Game {
     println("+------------------------------+");
     println();
 
-    if (color == player) {
+    if (bitBoard.getNextColor() == player) {
       List<BitBoard> childBoards = bitBoard.getChildBoards();
 
       if (selection == -1) {
