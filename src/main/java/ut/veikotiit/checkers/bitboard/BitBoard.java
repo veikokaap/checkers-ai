@@ -57,6 +57,14 @@ public class BitBoard {
     return whites;
   }
 
+  public long getWhiteRegularPieces() {
+    return whites & ~kings;
+  }
+
+  public long getBlackRegularPieces() {
+    return whites & ~kings;
+  }
+
   public long getWhiteKings() {
     return whites & kings;
   }
