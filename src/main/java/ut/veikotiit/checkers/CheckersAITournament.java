@@ -41,11 +41,10 @@ public class CheckersAITournament {
   private List<AIScorerPair> getAllScorerPairCombinations() {
     List<AIScorerPair> combinations = new ArrayList<>();
 
-    for (int i = 0; i < scorers.size() - 1; i++) {
-      for (int j = i + 1; j < scorers.size(); j++) {
+    for (int i = 0; i < scorers.size(); i++) {
+      for (int j = i; j < scorers.size(); j++) {
         AIScorerPair aiScorerPair = AIScorerPair.of(scorers.get(i), scorers.get(j));
         combinations.add(aiScorerPair);
-        combinations.add(AIScorerPair.flip(aiScorerPair));
       }
     }
     return combinations;

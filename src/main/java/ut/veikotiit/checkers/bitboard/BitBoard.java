@@ -28,7 +28,7 @@ public class BitBoard {
    */
 
   private static final BitBoardMover bitBoardMover = new BitBoardMover();
-  private static final Color STARTING_COLOR = Color.BLACK;
+  private static final Color STARTING_COLOR = Color.WHITE;
 
   private final long blacks;
   private final long whites;

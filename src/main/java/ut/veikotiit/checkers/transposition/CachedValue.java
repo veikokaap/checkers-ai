@@ -4,10 +4,10 @@ import java.util.Objects;
 
 public class CachedValue {
   private final Flag flag;
-  private final int value;
+  private final double value;
   private final int depth;
 
-  public CachedValue(Flag flag, int value, int depth) {
+  public CachedValue(Flag flag, double value, int depth) {
     this.flag = flag;
     this.value = value;
     this.depth = depth;
@@ -17,7 +17,7 @@ public class CachedValue {
     return flag;
   }
 
-  public int getValue() {
+  public double getValue() {
     return value;
   }
 

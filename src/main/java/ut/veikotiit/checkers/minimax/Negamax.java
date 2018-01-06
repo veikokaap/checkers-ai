@@ -1,6 +1,7 @@
 package ut.veikotiit.checkers.minimax;
 
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import ut.veikotiit.checkers.Color;
 import ut.veikotiit.checkers.bitboard.BitBoard;
@@ -9,85 +10,65 @@ import ut.veikotiit.checkers.transposition.CachedValue;
 import ut.veikotiit.checkers.transposition.TranspositionTable;
 
 public class Negamax {
-  
+
   private final long startTime;
   private final long timeGiven;
   private final BitBoardScorer scorer;
   private final TranspositionTable transpositionTable;
-  private final boolean checkTimeLimit;
 
-  public Negamax(long startTime, long timeGiven, BitBoardScorer scorer, TranspositionTable transpositionTable, boolean checkTimeLimit) {
+  public Negamax(long startTime, long timeGiven, BitBoardScorer scorer, TranspositionTable transpositionTable) {
     this.startTime = startTime;
     this.timeGiven = timeGiven;
     this.scorer = scorer;
     this.transpositionTable = transpositionTable;
-    this.checkTimeLimit = checkTimeLimit;
   }
 
-  public Result recursive(BitBoard board, int alpha, int beta, int depth) {
-    if (checkTimeLimit) {
-      if (System.currentTimeMillis() - startTime >= timeGiven) {
-        return null; // Time exceeded
-      }
+  public double recursive(BitBoard board, Color color, double alpha, double beta, int depth) throws TimeoutException {
+    if (System.currentTimeMillis() - startTime >= timeGiven) {
+      throw new TimeoutException();
     }
-    
-    int originalAlpha = alpha;
+
+    double originalAlpha = alpha;
     CachedValue cachedValue = transpositionTable.get(board);
-//    CachedValue cachedValue = null;
 
-    if (cachedValue != null) {
-      if (cachedValue.getDepth() >= depth) {
-        CachedValue.Flag flag = cachedValue.getFlag();
-        int value = cachedValue.getValue();
-        if (flag == CachedValue.Flag.EXACT) {
-          return new Result(value, null);
-        }
-        else if (flag == CachedValue.Flag.LOWERBOUND && value > alpha) {
-          alpha = value;
-        }
-        else if (flag == CachedValue.Flag.UPPERBOUND && value < beta) {
-          beta = value;
-        }
+    if (cachedValue != null && cachedValue.getDepth() >= depth) {
+      CachedValue.Flag flag = cachedValue.getFlag();
+      double value = cachedValue.getValue();
+      if (flag == CachedValue.Flag.EXACT) {
+        return value;
+      }
+      else if (flag == CachedValue.Flag.LOWERBOUND && value > alpha) {
+        alpha = value;
+      }
+      else if (flag == CachedValue.Flag.UPPERBOUND && value < beta) {
+        beta = value;
+      }
 
-        if (alpha >= beta) {
-          return new Result(value, null);
-        }
+      if (alpha >= beta) {
+        return value;
       }
     }
 
     if (depth <= 0) {
-      int score = scorer.getScore(board);
-      transpositionTable.put(board, createNewCachedValue(alpha, beta, depth, score));
-      return new Result(score, null);
-    }
-    
-    List<BitBoard> childBoards = board.getChildBoards();
-    if (childBoards.isEmpty()) {
-      int score = -10000 - depth; // Defeat
-      transpositionTable.put(board, createNewCachedValue(alpha, beta, depth, score));
-      return new Result(score, null);
+      return (double) scorer.getScore(board, color);
     }
 
-    int bestValue = -1000000;
-    BitBoard bestChild = null;
+    List<BitBoard> childBoards = board.getChildBoards();
+    if (childBoards.isEmpty()) {
+      return -10000 - depth; //Defeat
+    }
+
+    double bestValue = -1000000.0;
     for (BitBoard child : childBoards) {
-      Result result = recursive(child, -beta, -alpha, depth - 1);
-      
-      if (result == null) { 
-        return null; // time exceeded
-      }
-      
-      int score = result.getScore();
-      score *= -1;
+      double score = -recursive(child, color, -beta, -alpha, depth - 1);
 
       if (score > bestValue) {
         bestValue = score;
-        bestChild = child;
       }
       if (bestValue > alpha) {
         alpha = bestValue;
       }
-      if (bestValue >= beta) {
+      if (alpha >= beta) {
         break;
       }
     }
@@ -104,38 +85,6 @@ public class Negamax {
     }
     transpositionTable.put(board, newCachedValue);
 
-    return new Result(bestValue, bestChild);
-  }
-
-  private CachedValue createNewCachedValue(int alpha, int beta, int depth, int score) {
-    CachedValue newCachedValue;
-    if (score < alpha) {
-      newCachedValue = new CachedValue(CachedValue.Flag.LOWERBOUND, score, depth);
-    }
-    else if (score >= beta) {
-      newCachedValue = new CachedValue(CachedValue.Flag.UPPERBOUND, score, depth);
-    }
-    else {
-      newCachedValue = new CachedValue(CachedValue.Flag.EXACT, score, depth);
-    }
-    return newCachedValue;
-  }
-
-  public static class Result {
-    private final int score;
-    private final BitBoard board;
-
-    public Result(int score, BitBoard board) {
-      this.score = score;
-      this.board = board;
-    }
-
-    public BitBoard getBoard() {
-      return board;
-    }
-
-    public int getScore() {
-      return score;
-    }
+    return bestValue;
   }
 }

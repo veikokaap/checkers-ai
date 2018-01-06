@@ -33,6 +33,7 @@ import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 import ut.veikotiit.checkers.Color;
 import ut.veikotiit.checkers.bitboard.BitBoard;
 import ut.veikotiit.checkers.bitboard.BitUtil;
+import ut.veikotiit.checkers.minimax.IterativeDeepeningSearcher;
 import ut.veikotiit.checkers.minimax.MtdF;
 import ut.veikotiit.checkers.moves.Move;
 import ut.veikotiit.checkers.moves.MultiJumpMove;
@@ -143,14 +144,14 @@ public class TerminalGame implements Game {
   }
 
   private GameResult startGame() throws InterruptedException, IOException {
-    MtdF mtdF = new MtdF(10);
+    IterativeDeepeningSearcher searcher = new IterativeDeepeningSearcher(100, 10);
     while (true) {
-      if (move(mtdF)) {
+      if (move(searcher)) {
         if (bitBoard.getNextColor() == Color.WHITE) {
-          System.out.println("Black wins!");
+          println("Black wins!");
           return GameResult.BLACK_WIN;
         } else {
-          System.out.println("White wins!");
+          println("White wins!");
           return GameResult.WHITE_WIN;
         }
       }
@@ -176,7 +177,7 @@ public class TerminalGame implements Game {
     return false;
   }
 
-  private boolean move(MtdF mtdF) throws IOException {
+  private boolean move(IterativeDeepeningSearcher searcher) throws IOException {
     printBoard();
     if (bitBoard.getNextColor() == player) {
       List<BitBoard> childBoards = bitBoard.getChildBoards();
@@ -208,7 +209,7 @@ public class TerminalGame implements Game {
       }
     }
     else {
-      Move move = mtdF.search(bitBoard, 100, DefaultBitBoardScorer.getInstance());
+      Move move = searcher.findBestMove(bitBoard, DefaultBitBoardScorer.getInstance());
       if (move == null) {
         terminal.flush();
         return true;

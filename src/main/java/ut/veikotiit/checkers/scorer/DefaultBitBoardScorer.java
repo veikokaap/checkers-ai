@@ -8,9 +8,7 @@ public class DefaultBitBoardScorer implements BitBoardScorer {
     private static BitBoardScorer INSTANCE = new DefaultBitBoardScorer();
 
     @Override
-    public int getScore(BitBoard bitBoard) {
-        Color color = bitBoard.getNextColor();
-
+    public int getScore(BitBoard bitBoard, Color color) {
         int score = Long.bitCount(bitBoard.getAllBlackPieces()) + Long.bitCount(bitBoard.getBlackKings())
                 - Long.bitCount(bitBoard.getAllWhitePieces()) - Long.bitCount(bitBoard.getWhiteKings());
         if (color == Color.WHITE) {
