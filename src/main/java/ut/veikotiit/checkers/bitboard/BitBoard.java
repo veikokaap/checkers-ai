@@ -1,5 +1,6 @@
 package ut.veikotiit.checkers.bitboard;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -121,6 +122,49 @@ public class BitBoard {
         ", whites=" + whites +
         ", previousMove=" + previousMove +
         '}';
+  }
+
+  public String toPrettyString() {
+    StringBuilder stringBuilder = new StringBuilder();
+
+    List<Integer> blacks = Arrays.stream(BitUtil.longToBits(getAllBlackPieces())).boxed().collect(Collectors.toList());
+    List<Integer> blackKings = Arrays.stream(BitUtil.longToBits(getBlackKings())).boxed().collect(Collectors.toList());
+    List<Integer> whites = Arrays.stream(BitUtil.longToBits(getAllWhitePieces())).boxed().collect(Collectors.toList());
+    List<Integer> whiteKings = Arrays.stream(BitUtil.longToBits(getWhiteKings())).boxed().collect(Collectors.toList());
+
+    stringBuilder.append("+------------------------------+").append(System.lineSeparator());
+    for (int i = 0; i < 10; i++) {
+      stringBuilder.append("|");
+      for (int j = 0; j < 10; j++) {
+        stringBuilder.append(" ");
+        if ((i + j) % 2 == 1) {
+          int index = (5 * i) + (j / 2);
+          if (blackKings.contains(index)) {
+            stringBuilder.append("B");
+          }
+          else if (blacks.contains(index)) {
+            stringBuilder.append("b");
+          }
+          else if (whiteKings.contains(index)) {
+            stringBuilder.append("W");
+          }
+          else if (whites.contains(index)) {
+            stringBuilder.append("w");
+          }
+          else {
+            stringBuilder.append(" ");
+          }
+        }
+        else {
+          stringBuilder.append(" ");
+        }
+        stringBuilder.append(" ");
+      }
+      stringBuilder.append("|").append(System.lineSeparator());
+    }
+    stringBuilder.append("+------------------------------+");
+
+    return stringBuilder.toString();
   }
 
   public Color getNextColor() {

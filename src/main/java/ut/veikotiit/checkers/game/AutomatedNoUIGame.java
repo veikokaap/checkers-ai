@@ -68,6 +68,7 @@ public class AutomatedNoUIGame implements Game {
   private boolean move(MtdF mtdF) throws IOException {
     Move move = mtdF.search(bitBoard, 100, bitBoard.getNextColor() == Color.WHITE ? whiteScorer : blackScorer);
     if (move == null) {
+      System.out.println(bitBoard.toPrettyString());
       return true;
     }
     bitBoard = bitBoard.move(move);
