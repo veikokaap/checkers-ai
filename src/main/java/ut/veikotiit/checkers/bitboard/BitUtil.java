@@ -62,6 +62,11 @@ public class BitUtil {
   public static final long MASK_ROW_10 = BITS[45] | BITS[46] | BITS[47] | BITS[48] | BITS[49];
   public static final long MASK_ROW_1 = BITS[0] | BITS[1] | BITS[2] | BITS[3] | BITS[4];
 
+  public static long getRowMask(int row) {
+    int rowStartIndex = (row - 1) * 5;
+    return BITS[rowStartIndex] | BITS[rowStartIndex + 1] | BITS[rowStartIndex + 2] | BITS[rowStartIndex + 3] | BITS[rowStartIndex + 4];
+  }
+
   
   public static long getBitAt(int i) {
     return BITS[i];

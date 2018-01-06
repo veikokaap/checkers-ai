@@ -5,6 +5,7 @@ import org.apache.commons.collections4.multiset.HashMultiSet;
 import ut.veikotiit.checkers.game.AutomatedNoUIGame;
 import ut.veikotiit.checkers.game.GameResult;
 import ut.veikotiit.checkers.scorer.BitBoardScorer;
+import ut.veikotiit.checkers.scorer.BoardPlacementWeightBitBoardScorer;
 import ut.veikotiit.checkers.scorer.DefaultBitBoardScorer;
 import ut.veikotiit.checkers.scorer.WeightedBitBoardScorer;
 import ut.veikotiit.checkers.util.AIScorerPair;
@@ -21,7 +22,8 @@ public class CheckersAITournament {
   // TODO: 2.01.18 Dependency injection?
   private static final List<BitBoardScorer> scorers = Arrays.asList(
           DefaultBitBoardScorer.getInstance(),
-          WeightedBitBoardScorer.getInstance()
+          WeightedBitBoardScorer.getInstance(),
+          BoardPlacementWeightBitBoardScorer.getInstance()
   );
 
   private final Map<AIScorerPair, MultiSet<GameResult>> results = new HashMap<>();
