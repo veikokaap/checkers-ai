@@ -12,13 +12,15 @@ import ut.veikotiit.checkers.transposition.TranspositionTable;
 public class IterativeDeepeningSearcher {
 
   private final int max_depth;
-  private final MtdF mtdf;
+//  private final MtdF mtdf;
   private final TranspositionTable transpositionTable;
+  private final int timeGiven;
 
   public IterativeDeepeningSearcher(int max_depth, int timeGiven) {
     this.max_depth = max_depth;
+    this.timeGiven = timeGiven;
     transpositionTable = new TranspositionTable();
-    this.mtdf = new MtdF(timeGiven, transpositionTable);
+//    this.mtdf = new MtdF(timeGiven, transpositionTable);
   }
 
   public Move findBestMove(BitBoard bitBoard, BitBoardScorer scorer) {
@@ -40,6 +42,7 @@ public class IterativeDeepeningSearcher {
 
   private double calculateScore(BitBoard board, Color color, BitBoardScorer scorer) {
     long startTime = System.currentTimeMillis();
+    Negamax negamax = new Negamax(startTime, timeGiven, scorer, transpositionTable);
 
     int depth = 0;
     double firstGuess = scorer.getScore(board, color);
@@ -47,7 +50,8 @@ public class IterativeDeepeningSearcher {
     while (depth < max_depth) {
       depth += 1;
       try {
-        firstGuess = mtdf.search(board, color, depth, firstGuess, startTime, scorer);
+//        firstGuess = mtdf.search(board, color, depth, firstGuess, startTime, scorer);
+        firstGuess = negamax.recursive(board, color, -Double.MAX_VALUE, Double.MAX_VALUE, depth);
       } catch (TimeoutException e) {
         break;
       }
