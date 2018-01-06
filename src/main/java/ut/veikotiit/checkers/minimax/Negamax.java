@@ -32,8 +32,8 @@ public class Negamax {
     }
     
     int originalAlpha = alpha;
-//    CachedValue cachedValue = transpositionTable.get(board);
-    CachedValue cachedValue = null;
+    CachedValue cachedValue = transpositionTable.get(board);
+//    CachedValue cachedValue = null;
 
     if (cachedValue != null) {
       if (cachedValue.getDepth() >= depth) {
