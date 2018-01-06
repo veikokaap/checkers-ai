@@ -2,7 +2,6 @@ package ut.veikotiit.checkers.minimax;
 
 import java.util.List;
 
-import ut.veikotiit.checkers.Color;
 import ut.veikotiit.checkers.bitboard.BitBoard;
 import ut.veikotiit.checkers.scorer.BitBoardScorer;
 import ut.veikotiit.checkers.transposition.CachedValue;
@@ -24,21 +23,20 @@ public class Negamax {
     this.checkTimeLimit = checkTimeLimit;
   }
 
-  public Result recursive(BitBoard board, int alpha, int beta, int depth) {
+  public Result recursive(BitBoard board, double alpha, double beta, int depth) {
     if (checkTimeLimit) {
       if (System.currentTimeMillis() - startTime >= timeGiven) {
         return null; // Time exceeded
       }
     }
-    
-    int originalAlpha = alpha;
+
+    double originalAlpha = alpha;
     CachedValue cachedValue = transpositionTable.get(board);
-//    CachedValue cachedValue = null;
 
     if (cachedValue != null) {
       if (cachedValue.getDepth() >= depth) {
         CachedValue.Flag flag = cachedValue.getFlag();
-        int value = cachedValue.getValue();
+        double value = cachedValue.getValue();
         if (flag == CachedValue.Flag.EXACT) {
           return new Result(value, null);
         }
@@ -56,7 +54,7 @@ public class Negamax {
     }
 
     if (depth <= 0) {
-      int score = scorer.getScore(board);
+      double score = scorer.getScore(board);
       transpositionTable.put(board, createNewCachedValue(alpha, beta, depth, score));
       return new Result(score, null);
     }
@@ -68,7 +66,7 @@ public class Negamax {
       return new Result(score, null);
     }
 
-    int bestValue = -1000000;
+    double bestValue = -1000000;
     BitBoard bestChild = null;
     for (BitBoard child : childBoards) {
       Result result = recursive(child, -beta, -alpha, depth - 1);
@@ -77,7 +75,7 @@ public class Negamax {
         return null; // time exceeded
       }
       
-      int score = result.getScore();
+      double score = result.getScore();
       score *= -1;
 
       if (score > bestValue) {
@@ -107,7 +105,7 @@ public class Negamax {
     return new Result(bestValue, bestChild);
   }
 
-  private CachedValue createNewCachedValue(int alpha, int beta, int depth, int score) {
+  private CachedValue createNewCachedValue(double alpha, double beta, int depth, double score) {
     CachedValue newCachedValue;
     if (score < alpha) {
       newCachedValue = new CachedValue(CachedValue.Flag.LOWERBOUND, score, depth);
@@ -122,10 +120,10 @@ public class Negamax {
   }
 
   public static class Result {
-    private final int score;
+    private final double score;
     private final BitBoard board;
 
-    public Result(int score, BitBoard board) {
+    public Result(double score, BitBoard board) {
       this.score = score;
       this.board = board;
     }
@@ -134,7 +132,7 @@ public class Negamax {
       return board;
     }
 
-    public int getScore() {
+    public double getScore() {
       return score;
     }
   }

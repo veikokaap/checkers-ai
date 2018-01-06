@@ -9,7 +9,7 @@ public class WeightedBitBoardScorer implements BitBoardScorer {
   private static final int KING_WEIGHT = 2;
 
   @Override
-  public int getScore(BitBoard bitBoard) {
+  public double getScore(BitBoard bitBoard) {
     Color color = bitBoard.getNextColor();
 
     int score = Long.bitCount(bitBoard.getAllBlackPieces()) + KING_WEIGHT * Long.bitCount(bitBoard.getBlackKings())

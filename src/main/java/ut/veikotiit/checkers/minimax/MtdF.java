@@ -1,6 +1,5 @@
 package ut.veikotiit.checkers.minimax;
 
-import ut.veikotiit.checkers.Color;
 import ut.veikotiit.checkers.bitboard.BitBoard;
 import ut.veikotiit.checkers.moves.Move;
 import ut.veikotiit.checkers.scorer.BitBoardScorer;
@@ -22,7 +21,7 @@ public class MtdF {
     boolean first = true;
     int depth = 0;
     Negamax.Result bestResult = null;
-    int firstGuess;
+    double firstGuess;
     while (depth < max_depth) {
       depth += 1;
       if (bestResult == null) {
@@ -50,15 +49,14 @@ public class MtdF {
   }
 
   private Negamax.Result internal(BitBoard board, int depth,
-                                  TranspositionTable transpositionTable, int firstGuess, BitBoardScorer scorer, boolean firstRun) {
+                                  TranspositionTable transpositionTable, double firstGuess, BitBoardScorer scorer, boolean firstRun) {
     Negamax negamax = new Negamax(startTime, timeGiven, scorer, transpositionTable, !firstRun);
-
-    int upperBound = Integer.MAX_VALUE;
-    int lowerBound = Integer.MIN_VALUE;
+    double upperBound = Double.MAX_VALUE;
+    double lowerBound = Double.MIN_VALUE;
 
     Negamax.Result bestResult = null;
     while (lowerBound < upperBound) {
-      int beta = Math.max(firstGuess, lowerBound + 1);
+      double beta = Math.max(firstGuess, lowerBound + 1);
       Negamax.Result result = negamax.recursive(board, beta - 1, beta, depth);
       
       if (result == null) {
