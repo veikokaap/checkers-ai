@@ -26,4 +26,12 @@ public class AIScorerPair {
   public BitBoardScorer getBlack() {
     return black;
   }
+
+  @Override
+  public String toString() {
+    return "AIScorerPair{" +
+            "white=" + white +
+            ", black=" + black +
+            '}';
+  }
 }
