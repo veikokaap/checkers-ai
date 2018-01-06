@@ -144,7 +144,7 @@ public class TerminalGame implements Game {
   }
 
   private GameResult startGame() throws InterruptedException, IOException {
-    IterativeDeepeningSearcher searcher = new IterativeDeepeningSearcher(100, 10);
+    IterativeDeepeningSearcher searcher = new IterativeDeepeningSearcher(100, 50);
     while (true) {
       if (move(searcher)) {
         if (bitBoard.getNextColor() == Color.WHITE) {

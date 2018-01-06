@@ -2,6 +2,7 @@ package ut.veikotiit.checkers.minimax;
 
 import java.util.concurrent.TimeoutException;
 
+import ut.veikotiit.checkers.Color;
 import ut.veikotiit.checkers.bitboard.BitBoard;
 import ut.veikotiit.checkers.scorer.BitBoardScorer;
 import ut.veikotiit.checkers.transposition.TranspositionTable;
@@ -16,7 +17,7 @@ public class MtdF {
     this.transpositionTable = transpositionTable;
   }
 
-  public double search(BitBoard board, int depth, double firstGuess, long startTime, BitBoardScorer scorer) throws TimeoutException {
+  public double search(BitBoard board, Color color, int depth, double firstGuess, long startTime, BitBoardScorer scorer) throws TimeoutException {
     Negamax negamax = new Negamax(startTime, timeGiven, scorer, transpositionTable);
     double score = firstGuess;
 
@@ -31,7 +32,8 @@ public class MtdF {
       else {
         beta = score;
       }
-      score = negamax.recursive(board, board.getPreviousMove().getColor(), beta - 1, beta, depth);
+
+      score = negamax.recursive(board, color, beta - 1, beta, depth);
 
       if (score < beta) {
         upperBound = score;

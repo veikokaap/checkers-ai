@@ -25,13 +25,14 @@ public class IterativeDeepeningSearcher {
     double bestScore = -Double.MAX_VALUE;
     Move bestMove = null;
     for (BitBoard childBoard : childBoards) {
-      double score = calculateScore(childBoard, childBoard.getPreviousMove().getColor(), scorer);
+      double score = calculateScore(childBoard, bitBoard.getNextColor(), scorer);
       if (score > bestScore) {
         bestScore = score;
         bestMove = childBoard.getPreviousMove();
       }
     }
 
+//    System.out.println(bitBoard.getNextColor() + ": " + bestScore);
     return bestMove;
   }
 
@@ -44,12 +45,13 @@ public class IterativeDeepeningSearcher {
     while (depth < max_depth) {
       depth += 1;
       try {
-        firstGuess = mtdf.search(board, depth, firstGuess, startTime, scorer);
+        firstGuess = mtdf.search(board, color, depth, firstGuess, startTime, scorer);
       } catch (TimeoutException e) {
         break;
       }
     }
 
+//    System.out.println("  " + depth + ": " + firstGuess);
     return firstGuess;
   }
 }

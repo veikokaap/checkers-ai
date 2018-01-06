@@ -50,17 +50,17 @@ public class Negamax {
     }
 
     if (depth <= 0) {
-      return (double) scorer.getScore(board, color);
+      return scorer.getScore(board, color);
     }
 
     List<BitBoard> childBoards = board.getChildBoards();
     if (childBoards.isEmpty()) {
-      return -10000 - depth; //Defeat
+      return 10000 + depth; //Victory
     }
 
     double bestValue = -1000000.0;
     for (BitBoard child : childBoards) {
-      double score = -recursive(child, color, -beta, -alpha, depth - 1);
+      double score = -recursive(child, color.getOpponent(), -beta, -alpha, depth - 1);
 
       if (score > bestValue) {
         bestValue = score;
