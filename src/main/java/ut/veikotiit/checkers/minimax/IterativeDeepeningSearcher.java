@@ -13,10 +13,12 @@ public class IterativeDeepeningSearcher {
 
   private final int max_depth;
   private final MtdF mtdf;
+  private final TranspositionTable transpositionTable;
 
   public IterativeDeepeningSearcher(int max_depth, int timeGiven) {
     this.max_depth = max_depth;
-    this.mtdf = new MtdF(timeGiven, new TranspositionTable());
+    transpositionTable = new TranspositionTable();
+    this.mtdf = new MtdF(timeGiven, transpositionTable);
   }
 
   public Move findBestMove(BitBoard bitBoard, BitBoardScorer scorer) {

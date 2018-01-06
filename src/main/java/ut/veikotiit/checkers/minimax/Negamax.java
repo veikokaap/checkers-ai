@@ -30,6 +30,7 @@ public class Negamax {
 
     double originalAlpha = alpha;
     CachedValue cachedValue = transpositionTable.get(board);
+//    CachedValue cachedValue = null;
 
     if (cachedValue != null && cachedValue.getDepth() >= depth) {
       CachedValue.Flag flag = cachedValue.getFlag();
@@ -55,10 +56,10 @@ public class Negamax {
 
     List<BitBoard> childBoards = board.getChildBoards();
     if (childBoards.isEmpty()) {
-      return 10000 + depth; //Victory
+      return 1000000 + depth; //Victory
     }
 
-    double bestValue = -1000000.0;
+    double bestValue = -10000000000.0;
     for (BitBoard child : childBoards) {
       double score = -recursive(child, color.getOpponent(), -beta, -alpha, depth - 1);
 

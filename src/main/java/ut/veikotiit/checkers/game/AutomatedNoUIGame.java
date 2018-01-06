@@ -28,7 +28,7 @@ public class AutomatedNoUIGame implements Game {
   public AutomatedNoUIGame(BitBoardScorer whiteScorer, BitBoardScorer blackScorer) {
     this.whiteScorer = whiteScorer;
     this.blackScorer = blackScorer;
-    this.bitBoard = BitBoard.create(0b11111111111111111111L, 0b11111111111111111111000000000000000000000000000000L, 0L);
+    this.bitBoard = BitBoard.createStartingBoard();
   }
 
   @Override

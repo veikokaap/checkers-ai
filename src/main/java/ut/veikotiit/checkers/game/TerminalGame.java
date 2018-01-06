@@ -45,7 +45,7 @@ public class TerminalGame implements Game {
   private final HashMap<BitBoard, AtomicInteger> whiteBitboardStateCounters = new HashMap<>();
   private final HashMap<BitBoard, AtomicInteger> blackBitboardStateCounters = new HashMap<>();
 
-  private BitBoard bitBoard = BitBoard.create(0b11111111111111111111L, 0b11111111111111111111000000000000000000000000000000L, 0L);
+  private BitBoard bitBoard = BitBoard.createStartingBoard();
 
   private Color player = null;
   private Terminal terminal;

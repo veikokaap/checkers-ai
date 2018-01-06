@@ -33,6 +33,10 @@ public class TranspositionTable {
     return map.get(calculateHash(bitBoard));
   }
 
+  public void clear() {
+    map.clear();
+  }
+
   private long calculateHash(BitBoard bitBoard) {
     long hash = 0;
     for (int bit : BitUtil.longToBits(bitBoard.getWhiteRegularPieces())) {

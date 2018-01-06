@@ -36,8 +36,8 @@ public class BitBoard {
   private final Move previousMove;
   private List<BitBoard> childBoards;
 
-  public static BitBoard create(long blacks, long whites, long kings) {
-    return new BitBoard(blacks, whites, kings, null);
+  public static BitBoard createStartingBoard() {
+    return new BitBoard(0b11111111111111111111L, 0b11111111111111111111000000000000000000000000000000L, 0L, null);
   }
 
   private BitBoard(long blacks, long whites, long kings, Move previousMove) {
