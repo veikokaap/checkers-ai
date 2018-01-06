@@ -11,8 +11,8 @@ public class DefaultBitBoardScorer implements BitBoardScorer {
     public int getScore(BitBoard bitBoard) {
         Color color = bitBoard.getNextColor();
 
-        int score = Long.bitCount(bitBoard.getBlacks()) + Long.bitCount(bitBoard.getBlackKings())
-                - Long.bitCount(bitBoard.getWhites()) - Long.bitCount(bitBoard.getWhiteKings());
+        int score = Long.bitCount(bitBoard.getAllBlackPieces()) + Long.bitCount(bitBoard.getBlackKings())
+                - Long.bitCount(bitBoard.getAllWhitePieces()) - Long.bitCount(bitBoard.getWhiteKings());
         if (color == Color.WHITE) {
             score *= -1;
         }

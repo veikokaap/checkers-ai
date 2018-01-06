@@ -21,8 +21,8 @@ public class SimpleMoveGenerator {
   }
 
   private static SimpleMove[] getBlackMoves(BitBoard board) {
-    long whites = board.getWhites();
-    long blacks = board.getBlacks();
+    long whites = board.getAllWhitePieces();
+    long blacks = board.getAllBlackPieces();
     long blackKings = board.getBlackKings();
 
     SimpleMove[][] blackRegularPieceMoves = getBlackRegularPieceMoves(whites, blacks);
@@ -79,8 +79,8 @@ public class SimpleMoveGenerator {
   }
 
   private static SimpleMove[] getWhiteMoves(BitBoard board) {
-    long whites = board.getWhites();
-    long blacks = board.getBlacks();
+    long whites = board.getAllWhitePieces();
+    long blacks = board.getAllBlackPieces();
     long whiteKings = board.getWhiteKings();
 
     SimpleMove[][] whiteRegularPieceMoves = getWhiteRegularPieceMoves(whites, blacks);

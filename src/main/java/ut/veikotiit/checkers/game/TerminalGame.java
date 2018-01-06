@@ -253,9 +253,9 @@ public class TerminalGame implements Game {
       shownBoard = bitBoard.move(rowMoveMap.get(selection));
     }
     
-    List<Integer> blacks = Arrays.stream(BitUtil.longToBits(shownBoard.getBlacks())).boxed().collect(Collectors.toList());
+    List<Integer> blacks = Arrays.stream(BitUtil.longToBits(shownBoard.getAllBlackPieces())).boxed().collect(Collectors.toList());
     List<Integer> blackKings = Arrays.stream(BitUtil.longToBits(shownBoard.getBlackKings())).boxed().collect(Collectors.toList());
-    List<Integer> whites = Arrays.stream(BitUtil.longToBits(shownBoard.getWhites())).boxed().collect(Collectors.toList());
+    List<Integer> whites = Arrays.stream(BitUtil.longToBits(shownBoard.getAllWhitePieces())).boxed().collect(Collectors.toList());
     List<Integer> whiteKings = Arrays.stream(BitUtil.longToBits(shownBoard.getWhiteKings())).boxed().collect(Collectors.toList());
 
     clearScreen();

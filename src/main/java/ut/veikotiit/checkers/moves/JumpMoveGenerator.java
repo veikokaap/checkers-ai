@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import ut.veikotiit.checkers.Color;
 import ut.veikotiit.checkers.bitboard.BitBoard;
@@ -16,12 +15,12 @@ public class JumpMoveGenerator {
   public static Set<SingleJumpMove> getSingleJumps(BitBoard board, Color color) {
     long myPieces, opponentPieces;
     if (color == Color.WHITE) {
-      myPieces = board.getWhites();
-      opponentPieces = board.getBlacks();
+      myPieces = board.getAllWhitePieces();
+      opponentPieces = board.getAllBlackPieces();
     }
     else {
-      myPieces = board.getBlacks();
-      opponentPieces = board.getWhites();
+      myPieces = board.getAllBlackPieces();
+      opponentPieces = board.getAllWhitePieces();
     }
 
     return new HashSet<>(Arrays.asList(getSingleJumps(color, myPieces, opponentPieces)));
