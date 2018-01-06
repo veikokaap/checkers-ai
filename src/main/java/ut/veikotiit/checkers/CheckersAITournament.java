@@ -31,7 +31,11 @@ public class CheckersAITournament {
   public static void main(String[] args) {
     CheckersAITournament checkersAITournament = new CheckersAITournament();
 
-    for (AIScorerPair aiScorerPair : checkersAITournament.getAllScorerPairCombinations()) {
+    List<AIScorerPair> list = checkersAITournament.getAllScorerPairCombinations();
+    for (AIScorerPair aiScorerPair : list) {
+      System.out.println(aiScorerPair);
+    }
+    for (AIScorerPair aiScorerPair : list) {
       for (int i = 0; i < GAME_COUNT; i++) {
         checkersAITournament.results.computeIfAbsent(aiScorerPair, x -> new HashMultiSet<>())
                 .add(new AutomatedNoUIGame(aiScorerPair.getWhite(), aiScorerPair.getBlack()).play());
@@ -44,10 +48,13 @@ public class CheckersAITournament {
     List<AIScorerPair> combinations = new ArrayList<>();
 
     for (int i = 0; i < scorers.size(); i++) {
-      for (int j = i + 1; j < scorers.size(); j++) {
-        AIScorerPair aiScorerPair = AIScorerPair.of(scorers.get(i), scorers.get(j));
+      for (int j = i; j < scorers.size(); j++) {
+        BitBoardScorer blackScorer = scorers.get(j);
+        BitBoardScorer whiteScorer = scorers.get(i);
+        AIScorerPair aiScorerPair = AIScorerPair.of(whiteScorer, blackScorer);
         combinations.add(aiScorerPair);
-        combinations.add(AIScorerPair.flip(aiScorerPair));
+        if (whiteScorer != blackScorer)
+          combinations.add(AIScorerPair.flip(aiScorerPair));
       }
     }
     return combinations;
