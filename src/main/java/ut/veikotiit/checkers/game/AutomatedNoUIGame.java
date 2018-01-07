@@ -33,7 +33,7 @@ public class AutomatedNoUIGame implements Game {
 
   @Override
   public GameResult play() {
-    IterativeDeepeningSearcher searcher = new IterativeDeepeningSearcher(100, 50);
+    IterativeDeepeningSearcher searcher = new IterativeDeepeningSearcher(100, 100);
     try {
       while (true) {
         if (move(searcher)) {

@@ -33,7 +33,7 @@ public class MtdF {
         beta = score;
       }
 
-      score = negamax.recursive(board, color, beta - 1, beta, depth);
+      score = negamax.recursive(board, color, beta - 1, beta, depth, depth > 1);
 
       if (score < beta) {
         upperBound = score;

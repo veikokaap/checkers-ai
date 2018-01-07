@@ -23,8 +23,8 @@ public class Negamax {
     this.transpositionTable = transpositionTable;
   }
 
-  public double recursive(BitBoard board, Color color, double alpha, double beta, int depth) throws TimeoutException {
-    if (System.currentTimeMillis() - startTime >= timeGiven) {
+  public double recursive(BitBoard board, Color color, double alpha, double beta, int depth, boolean checkTime) throws TimeoutException {
+    if (checkTime && System.currentTimeMillis() - startTime >= timeGiven) {
       throw new TimeoutException();
     }
 
@@ -56,12 +56,12 @@ public class Negamax {
 
     List<BitBoard> childBoards = board.getChildBoards();
     if (childBoards.isEmpty()) {
-      return 1000000 + depth; //Victory
+      return 1000000 + depth; // Victory
     }
 
     double bestValue = -10000000000.0;
     for (BitBoard child : childBoards) {
-      double score = -recursive(child, color.getOpponent(), -beta, -alpha, depth - 1);
+      double score = -recursive(child, color.getOpponent(), -beta, -alpha, depth - 1, checkTime);
 
       if (score > bestValue) {
         bestValue = score;
