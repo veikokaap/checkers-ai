@@ -1,5 +1,6 @@
 package ut.veikotiit.checkers.game;
 
+import javax.swing.WindowConstants;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -121,6 +122,7 @@ public class TerminalGame implements Game {
       if (terminal instanceof SwingTerminalFrame) {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         ((SwingTerminalFrame) terminal).setSize((int)(screenSize.getWidth() * 0.8), (int)(screenSize.getHeight() * 0.8));
+        ((SwingTerminalFrame) terminal).setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
       }
 //      terminal.enterPrivateMode();
       askToPlay();
