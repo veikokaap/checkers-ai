@@ -1,5 +1,6 @@
 # Checkers AI
 Checkers AI written in java using MTD-f, iterative deepening, negamax, alpha-beta pruning and transposition tables.
+Optimal experience when running on Linux. Will work on Windows too, but problems might appear due to lacking native ANSI terminal support.
 
 ## Running
 ##### Prerequisites
