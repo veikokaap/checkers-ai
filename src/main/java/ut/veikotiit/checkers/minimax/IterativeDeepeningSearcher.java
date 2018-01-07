@@ -51,7 +51,7 @@ public class IterativeDeepeningSearcher {
       }
     }
 
-    System.out.println(bitBoard.getNextColor() + " at " + depth + ": " + bestScore);
+//    System.out.println(bitBoard.getNextColor() + " at " + depth + ": " + bestScore);
     return bestMove;
   }
 
