@@ -31,15 +31,12 @@ public class BoardPlacementWeightBitBoardScorer implements BitBoardScorer {
   @Override
   public int getScore(BitBoard bitBoard, Color color) {
     int score = 0;
-    long allColorPieces = color == Color.WHITE ? bitBoard.getAllWhitePieces() : bitBoard.getAllBlackPieces();
+    long allColorPieces = bitBoard.getPlayerPieces(color);
 
     for (int i = 1; i <= 10; i++) {
       score += (Long.bitCount(allColorPieces & BitUtil.getRowMask(i)) * rowScoreMap.get(i));
     }
 
-    if (color == Color.WHITE) {
-      score *= -1;
-    }
     return score + DefaultBitBoardScorer.getInstance().getScore(bitBoard, color);
   }
 
