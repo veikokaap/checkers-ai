@@ -9,11 +9,8 @@ public class DefaultBitBoardScorer implements BitBoardScorer {
 
     @Override
     public int getScore(BitBoard bitBoard, Color color) {
-      int score = Long.bitCount(bitBoard.getAllBlackPieces()) + Long.bitCount(bitBoard.getBlackKings())
-              - Long.bitCount(bitBoard.getAllWhitePieces()) - Long.bitCount(bitBoard.getWhiteKings());
-      if (color == Color.WHITE) {
-        score *= -1;
-      }
+      int score = Long.bitCount(bitBoard.getPlayerPieces(color)) + Long.bitCount(bitBoard.getPlayerKings(color))
+          - Long.bitCount(bitBoard.getPlayerPieces(color.getOpponent())) - Long.bitCount(bitBoard.getPlayerKings(color.getOpponent()));
 
       return score * 1000;
     }
