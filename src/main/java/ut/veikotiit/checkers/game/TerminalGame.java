@@ -361,7 +361,7 @@ public class TerminalGame implements Game {
           terminal.setForegroundColor(TextColor.ANSI.GREEN);
         }
         else {
-          terminal.setForegroundColor(TextColor.ANSI.BLUE);
+          terminal.setForegroundColor(TextColor.ANSI.YELLOW);
         }
         print("\u25CC");
         terminal.resetColorAndSGR();
@@ -374,12 +374,12 @@ public class TerminalGame implements Game {
             }
           }
         }
-        print("\u25E6");
+        print("\u25AB");
         terminal.resetColorAndSGR();
       }
     }
     else {
-      print("\u25E6");
+      print("\u25AB");
       terminal.resetColorAndSGR();
     }
   }
