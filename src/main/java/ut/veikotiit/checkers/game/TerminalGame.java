@@ -102,8 +102,8 @@ public class TerminalGame implements Game {
 
     ActionListDialog playerQuestion = new ActionListDialogBuilder()
         .setTitle("Do you want to play yourself or let AI play?")
-        .addAction("Play with Whites", () -> player = Color.WHITE)
-        .addAction("Play with Blacks", () -> player = Color.BLACK)
+        .addAction("Play with Whites(yellow)", () -> player = Color.WHITE)
+        .addAction("Play with Blacks(green)", () -> player = Color.BLACK)
         .addAction("Let AI play", () -> player = null)
         .build();
 
@@ -284,12 +284,12 @@ public class TerminalGame implements Game {
             terminal.resetColorAndSGR();
           }
           else if (whiteKings.contains(index)) {
-            terminal.setForegroundColor(TextColor.ANSI.BLUE);
+            terminal.setForegroundColor(TextColor.ANSI.YELLOW);
             print("\u2605");
             terminal.resetColorAndSGR();
           }
           else if (whites.contains(index)) {
-            terminal.setForegroundColor(TextColor.ANSI.BLUE);
+            terminal.setForegroundColor(TextColor.ANSI.YELLOW);
             print("\u25CF");
             terminal.resetColorAndSGR();
           }
