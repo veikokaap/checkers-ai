@@ -41,10 +41,10 @@ public class IterativeDeepeningSearcher {
   private Move findMoveAtDepth(BitBoard bitBoard, BitBoardScorer scorer, int depth) throws TimeoutException {
     List<BitBoard> childBoards = bitBoard.getChildBoards();
 
-    double bestScore = -Double.MAX_VALUE;
+    int bestScore = Integer.MIN_VALUE;
     Move bestMove = null;
     for (BitBoard childBoard : childBoards) {
-      double score = calculateScore(childBoard, bitBoard.getNextColor(), scorer, depth);
+      int score = calculateScore(childBoard, bitBoard.getNextColor(), scorer, depth);
       if (score > bestScore) {
         bestScore = score;
         bestMove = childBoard.getPreviousMove();
@@ -55,8 +55,8 @@ public class IterativeDeepeningSearcher {
     return bestMove;
   }
 
-  private double calculateScore(BitBoard board, Color color, BitBoardScorer scorer, int depth) throws TimeoutException {
+  private int calculateScore(BitBoard board, Color color, BitBoardScorer scorer, int depth) throws TimeoutException {
     boolean checkTime = depth > 1;
-    return negamax.recursive(board, color, -Double.MAX_VALUE, Double.MAX_VALUE, depth, checkTime);
+    return negamax.recursive(board, color, Integer.MIN_VALUE, Integer.MAX_VALUE, depth, checkTime);
   }
 }

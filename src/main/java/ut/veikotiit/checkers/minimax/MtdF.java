@@ -17,15 +17,15 @@ public class MtdF {
     this.transpositionTable = transpositionTable;
   }
 
-  public double search(BitBoard board, Color color, int depth, double firstGuess, long startTime, BitBoardScorer scorer) throws TimeoutException {
+  public double search(BitBoard board, Color color, int depth, int firstGuess, long startTime, BitBoardScorer scorer) throws TimeoutException {
     Negamax negamax = new Negamax(startTime, timeGiven, scorer, transpositionTable);
-    double score = firstGuess;
+    int score = firstGuess;
 
-    double upperBound = Double.MAX_VALUE;
-    double lowerBound = -Double.MAX_VALUE;
+    int upperBound = Integer.MAX_VALUE;
+    int lowerBound = Integer.MIN_VALUE;
 
     while (lowerBound < upperBound) {
-      double beta;
+      int beta;
       if (score == lowerBound) {
         beta = score + 1;
       }

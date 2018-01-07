@@ -29,8 +29,8 @@ public class BoardPlacementWeightBitBoardScorer implements BitBoardScorer {
   }
 
   @Override
-  public double getScore(BitBoard bitBoard, Color color) {
-    double score = 0.0d;
+  public int getScore(BitBoard bitBoard, Color color) {
+    int score = 0;
     long allColorPieces = color == Color.WHITE ? bitBoard.getAllWhitePieces() : bitBoard.getAllBlackPieces();
 
     for (int i = 1; i <= 10; i++) {
