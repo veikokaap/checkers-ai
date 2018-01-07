@@ -114,7 +114,7 @@ public class TerminalGame implements Game {
   @Override
   public GameResult play() {
     DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
-    defaultTerminalFactory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.newInstance(new Font("Monospaced", Font.PLAIN, 18)));
+    defaultTerminalFactory.setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.newInstance(new Font("Monospaced", Font.PLAIN, 14)));
     GameResult result;
     try {
       terminal = defaultTerminalFactory.createTerminal();
@@ -374,12 +374,12 @@ public class TerminalGame implements Game {
             }
           }
         }
-        print("·");
+        print("\u25E6");
         terminal.resetColorAndSGR();
       }
     }
     else {
-      print("·");
+      print("\u25E6");
       terminal.resetColorAndSGR();
     }
   }
