@@ -60,7 +60,7 @@ public class BitBoard {
   }
 
   public long getBlackRegularPieces() {
-    return whites & ~kings;
+    return blacks & ~kings;
   }
 
   public long getWhiteKings() {
